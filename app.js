@@ -1734,13 +1734,636 @@ function updateAssessmentSummary() {
       )
     `;
   }
-const finishButton =
-  document.getElementById("finishAssessment");
 
-if (finishButton) {
-  finishButton.disabled = completed !== total;
+  const finishButton =
+    document.getElementById("finishAssessment");
+
+  if (finishButton) {
+    finishButton.disabled =
+      total === 0 || completed !== total;
+  }
+
 }
+
+/* =========================================================
+   ASSESSMENT RESULTS
+   ========================================================= */
+
+function showAssessmentResults(peerNumber, peerData) {
+  const cards = Array.from(
+    document.querySelectorAll(".requirement-card")
+  );
+
+  const results = cards.map((card) => {
+    const requirement = peerData.requirements.find(
+      (item) => item.id === card.dataset.requirement
+    );
+
+    const status =
+      card.querySelector(".requirement-status");
+
+    const result =
+      status?.classList.contains("status-success")
+        ? "meets"
+        : status?.classList.contains("status-attention")
+          ? "attention"
+          : "not-checked";
+
+    return { requirement, result };
+  }).filter((item) => item.requirement);
+
+  if (
+    results.some(
+      (item) => item.result === "not-checked"
+    )
+  ) {
+    return;
+  }
+
+  const meets =
+    results.filter(
+      (item) => item.result === "meets"
+    );
+
+  const attention =
+    results.filter(
+      (item) => item.result === "attention"
+    );
+
+  renderResultsPage(
+    peerNumber,
+    peerData,
+    meets,
+    attention
+  );
 }
+
+
+function renderResultsPage(
+  peerNumber,
+  peerData,
+  meets,
+  attention
+) {
+  const main = document.querySelector("main");
+
+  const total =
+    meets.length + attention.length;
+
+  const allMeet =
+    total > 0 && attention.length === 0;
+
+  main.innerHTML = `
+    <section class="results-page">
+
+      <div class="assessment-topbar">
+        <div class="assessment-topbar-inner">
+          <button
+            class="back-button"
+            id="resultsBackHome"
+            type="button"
+          >
+            <span>←</span>
+            Start New StockCheck
+          </button>
+
+          <div class="assessment-peer-badge">
+            Peer Group ${peerNumber}
+          </div>
+        </div>
+      </div>
+
+      <div class="results-container">
+
+        <section class="results-hero ${
+          allMeet
+            ? "results-hero-success"
+            : "results-hero-attention"
+        }">
+
+          <div class="results-icon">
+            ${allMeet ? "✓" : "!"}
+          </div>
+
+          <div>
+            <span class="section-kicker">
+              STOCKCHECK RESULTS
+            </span>
+
+            <h1>
+              ${
+                allMeet
+                  ? "All categories meet the minimum requirements"
+                  : `${attention.length} ${pluralize(
+                      "category",
+                      attention.length
+                    )} need attention`
+              }
+            </h1>
+
+            <p>
+              ${
+                allMeet
+                  ? `Based on the inventory entered, all ${total} categories for Peer Group ${peerNumber} meet the minimum stocking requirements shown in StockCheck.`
+                  : `${meets.length} of ${total} categories meet the displayed minimum stocking requirements. Review the categories marked Needs Attention below.`
+              }
+            </p>
+          </div>
+
+        </section>
+
+        <section class="results-stat-grid">
+          <div class="results-stat-card">
+            <span>Total Categories</span>
+            <strong>${total}</strong>
+          </div>
+
+          <div class="results-stat-card result-stat-success">
+            <span>Meets Requirement</span>
+            <strong>${meets.length}</strong>
+          </div>
+
+          <div class="results-stat-card result-stat-attention">
+            <span>Needs Attention</span>
+            <strong>${attention.length}</strong>
+          </div>
+        </section>
+
+        ${
+          attention.length
+            ? `
+              <section class="results-section">
+                <div class="results-section-heading">
+                  <div>
+                    <span class="section-kicker">
+                      REVIEW THESE ITEMS
+                    </span>
+                    <h2>Needs Attention</h2>
+                  </div>
+                  <span class="results-count results-warning">
+                    ${attention.length}
+                  </span>
+                </div>
+
+                <div class="results-list">
+                  ${buildResultsList(attention, false)}
+                </div>
+              </section>
+            `
+            : ""
+        }
+
+        <section class="results-section">
+          <div class="results-section-heading">
+            <div>
+              <span class="section-kicker">
+                REQUIREMENTS MET
+              </span>
+              <h2>Meets Requirement</h2>
+            </div>
+            <span class="results-count results-success">
+              ${meets.length}
+            </span>
+          </div>
+
+          <div class="results-list">
+            ${
+              meets.length
+                ? buildResultsList(meets, true)
+                : `
+                  <div class="results-empty">
+                    No categories currently meet the displayed minimum requirements.
+                  </div>
+                `
+            }
+          </div>
+        </section>
+
+        <section class="results-disclaimer">
+          <strong>About these results</strong>
+          <p>
+            StockCheck compares the inventory entered with the
+            minimum stocking requirements represented in this
+            tool. It is intended to support stocking review and
+            does not replace official WV WIC guidance or vendor
+            requirements.
+          </p>
+        </section>
+
+        <div class="results-actions">
+          <button
+            class="results-primary-button"
+            id="startNewAssessment"
+            type="button"
+          >
+            Start New StockCheck
+          </button>
+        </div>
+
+      </div>
+    </section>
+  `;
+
+  addResultsStyles();
+
+  document
+    .getElementById("resultsBackHome")
+    ?.addEventListener("click", returnToHome);
+
+  document
+    .getElementById("startNewAssessment")
+    ?.addEventListener("click", returnToHome);
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+
+function buildResultsList(items, isSuccess) {
+  return items
+    .map(({ requirement }) => `
+      <article class="result-item">
+
+        <div class="result-item-icon ${
+          isSuccess
+            ? "result-icon-success"
+            : "result-icon-attention"
+        }">
+          ${isSuccess ? "✓" : "!"}
+        </div>
+
+        <div class="result-item-copy">
+          <h3>${requirement.category}</h3>
+
+          <p>
+            ${getRequirementSummary(requirement)}
+          </p>
+
+          ${
+            requirement.sourceNote
+              ? `
+                <div class="result-source-note">
+                  <strong>Source note:</strong>
+                  ${requirement.sourceNote}
+                </div>
+              `
+              : ""
+          }
+        </div>
+
+        <span class="result-item-status ${
+          isSuccess
+            ? "result-status-success"
+            : "result-status-attention"
+        }">
+          ${
+            isSuccess
+              ? "Meets Requirement"
+              : "Needs Attention"
+          }
+        </span>
+
+      </article>
+    `)
+    .join("");
+}
+
+
+function addResultsStyles() {
+  if (document.getElementById("resultsStyles")) {
+    return;
+  }
+
+  const style = document.createElement("style");
+  style.id = "resultsStyles";
+
+  style.textContent = `
+    .results-page {
+      min-height: 100vh;
+      background:
+        linear-gradient(
+          180deg,
+          #edf5f7 0,
+          #f7f9fa 300px
+        );
+    }
+
+    .results-container {
+      width:
+        min(
+          calc(100% - 40px),
+          var(--max-width)
+        );
+      margin: auto;
+      padding: 45px 0 90px;
+    }
+
+    .results-hero {
+      padding: 30px;
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      background: white;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .results-hero-success {
+      border-top: 5px solid var(--wic-green);
+    }
+
+    .results-hero-attention {
+      border-top: 5px solid #d88416;
+    }
+
+    .results-icon {
+      flex: 0 0 auto;
+      width: 72px;
+      height: 72px;
+      display: grid;
+      place-items: center;
+      border-radius: 20px;
+      background: #eef7e4;
+      color: var(--success);
+      font-size: 32px;
+      font-weight: 900;
+    }
+
+    .results-hero-attention .results-icon {
+      background: #fff0dd;
+      color: var(--warning);
+    }
+
+    .results-hero h1 {
+      margin: 4px 0 7px;
+      color: var(--wic-blue-dark);
+      font-family: "Manrope", sans-serif;
+      font-size: clamp(27px, 4vw, 42px);
+      line-height: 1.1;
+      letter-spacing: -1.3px;
+    }
+
+    .results-hero p {
+      max-width: 760px;
+      margin: 0;
+      color: var(--text-medium);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .results-stat-grid {
+      margin: 22px 0 40px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .results-stat-card {
+      padding: 19px 21px;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      background: white;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .results-stat-card span {
+      display: block;
+      color: var(--text-light);
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .4px;
+      text-transform: uppercase;
+    }
+
+    .results-stat-card strong {
+      display: block;
+      margin-top: 4px;
+      color: var(--wic-blue-dark);
+      font-family: "Manrope", sans-serif;
+      font-size: 27px;
+    }
+
+    .result-stat-success strong {
+      color: var(--success);
+    }
+
+    .result-stat-attention strong {
+      color: var(--warning);
+    }
+
+    .results-section {
+      margin-top: 34px;
+    }
+
+    .results-section-heading {
+      margin-bottom: 14px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .results-section-heading h2 {
+      margin: 3px 0 0;
+      color: var(--wic-blue-dark);
+      font-family: "Manrope", sans-serif;
+      font-size: 24px;
+    }
+
+    .results-count {
+      min-width: 31px;
+      height: 31px;
+      padding: 0 9px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .results-success {
+      background: var(--light-green);
+      color: var(--success);
+    }
+
+    .results-warning {
+      background: #fff0dd;
+      color: var(--warning);
+    }
+
+    .results-list {
+      display: grid;
+      gap: 11px;
+    }
+
+    .result-item {
+      padding: 18px 20px;
+      display: grid;
+      grid-template-columns: 38px 1fr auto;
+      align-items: start;
+      gap: 14px;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      background: white;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .result-item-icon {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .result-icon-success {
+      background: var(--light-green);
+      color: var(--success);
+    }
+
+    .result-icon-attention {
+      background: #fff0dd;
+      color: var(--warning);
+    }
+
+    .result-item h3 {
+      margin: 0 0 4px;
+      color: var(--wic-blue-dark);
+      font-family: "Manrope", sans-serif;
+      font-size: 16px;
+    }
+
+    .result-item p {
+      margin: 0;
+      color: var(--text-medium);
+      font-size: 10px;
+      line-height: 1.55;
+    }
+
+    .result-source-note {
+      margin-top: 8px;
+      padding: 8px 10px;
+      border-left: 3px solid var(--wic-magenta);
+      background: #fbf3f8;
+      color: #75556a;
+      font-size: 9px;
+      line-height: 1.45;
+    }
+
+    .result-item-status {
+      padding: 6px 9px;
+      border-radius: 999px;
+      white-space: nowrap;
+      font-size: 8px;
+      font-weight: 800;
+    }
+
+    .result-status-success {
+      background: var(--light-green);
+      color: var(--success);
+    }
+
+    .result-status-attention {
+      background: #fff0dd;
+      color: var(--warning);
+    }
+
+    .results-disclaimer {
+      margin-top: 38px;
+      padding: 18px 20px;
+      border: 1px solid #d7e4e7;
+      border-radius: 14px;
+      background: #f3f8f9;
+    }
+
+    .results-disclaimer strong {
+      color: var(--wic-blue-dark);
+      font-size: 11px;
+    }
+
+    .results-disclaimer p {
+      margin: 5px 0 0;
+      color: var(--text-medium);
+      font-size: 9px;
+      line-height: 1.6;
+    }
+
+    .results-actions {
+      margin-top: 22px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .results-primary-button {
+      padding: 12px 18px;
+      border: 0;
+      border-radius: 11px;
+      background: var(--wic-blue);
+      color: white;
+      font-size: 10px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .results-primary-button:hover {
+      background: var(--wic-blue-dark);
+    }
+
+    .results-empty {
+      padding: 20px;
+      border: 1px dashed #cbdadd;
+      border-radius: 13px;
+      background: white;
+      color: var(--text-light);
+      text-align: center;
+      font-size: 10px;
+    }
+
+    @media (max-width: 700px) {
+      .results-container {
+        width:
+          min(
+            calc(100% - 28px),
+            var(--max-width)
+          );
+        padding-top: 30px;
+      }
+
+      .results-hero {
+        padding: 21px;
+        align-items: flex-start;
+      }
+
+      .results-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 15px;
+        font-size: 23px;
+      }
+
+      .results-stat-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .result-item {
+        grid-template-columns: 34px 1fr;
+      }
+
+      .result-item-status {
+        grid-column: 2;
+        justify-self: start;
+      }
+    }
+  `;
+
+  document.head.appendChild(style);
+}
+
 
 /* =========================================================
    HUMAN-READABLE REQUIREMENT SUMMARIES
