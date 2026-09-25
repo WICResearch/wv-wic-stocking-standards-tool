@@ -1734,7 +1734,12 @@ function updateAssessmentSummary() {
       )
     `;
   }
+const finishButton =
+  document.getElementById("finishAssessment");
 
+if (finishButton) {
+  finishButton.disabled = completed !== total;
+}
 }
 
 /* =========================================================
