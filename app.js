@@ -388,13 +388,22 @@ function buildRequirementCards(requirements) {
             }
 
 
-            <div class="inventory-placeholder">
+          <div class="inventory-section">
 
-              <span>
-                Inventory fields coming next
-              </span>
+  <div class="inventory-section-header">
+    <div>
+      <span class="inventory-kicker">CURRENT INVENTORY</span>
+      <strong>What do you have in stock?</strong>
+    </div>
 
-            </div>
+    <span class="inventory-help">
+      Enter what is available right now
+    </span>
+  </div>
+
+  ${buildInventoryFields(requirement)}
+
+</div>
 
           </div>
 
@@ -403,7 +412,653 @@ function buildRequirementCards(requirements) {
     })
     .join("");
 }
+/* =========================================================
+   INVENTORY INPUT FIELDS
+   ========================================================= */
 
+function buildInventoryFields(requirement) {
+
+  switch (requirement.type) {
+
+    /* -----------------------------------------------------
+       STANDARD REQUIREMENTS
+       ----------------------------------------------------- */
+
+    case "standard":
+      return `
+        <div class="inventory-grid">
+
+          ${
+            requirement.varieties
+              ? numberField(
+                  requirement.id,
+                  "varieties",
+                  "Varieties in stock",
+                  `Minimum: ${requirement.varieties}`
+                )
+              : ""
+          }
+
+          ${numberField(
+            requirement.id,
+            "quantity",
+            "Quantity in stock",
+            `Minimum: ${requirement.minimum} ${requirement.unit}`
+          )}
+
+        </div>
+      `;
+
+
+    /* -----------------------------------------------------
+       INFANT FORMULA — PEER GROUPS 1–3
+       ----------------------------------------------------- */
+
+    case "formula":
+      return `
+        <div class="inventory-grid">
+
+          ${numberField(
+            requirement.id,
+            "quantity",
+            "Total qualifying containers",
+            `Minimum: ${requirement.minimum}`
+          )}
+
+        </div>
+
+        <div class="inventory-subsection">
+
+          <span class="inventory-subheading">
+            Required formulas represented
+          </span>
+
+          <p class="inventory-instruction">
+            Check each formula if you currently have at least
+            one representative container in stock.
+          </p>
+
+          <div class="check-grid">
+
+            ${requirement.formulas
+              .map(
+                (formula, index) => `
+                  <label class="inventory-check">
+                    <input
+                      type="checkbox"
+                      data-requirement="${requirement.id}"
+                      data-field="formula-${index}"
+                    >
+                    <span>${formula}</span>
+                  </label>
+                `
+              )
+              .join("")}
+
+          </div>
+
+        </div>
+      `;
+
+
+    /* -----------------------------------------------------
+       FORMULA — PEER GROUPS 4–6
+       ----------------------------------------------------- */
+
+    case "formula-request":
+      return `
+        <div class="inventory-grid">
+
+          ${numberField(
+            requirement.id,
+            "quantity",
+            "Total qualifying containers",
+            `Minimum: ${requirement.minimum}`
+          )}
+
+        </div>
+
+        <div class="inventory-subsection">
+
+          <span class="inventory-subheading">
+            Required formulas represented
+          </span>
+
+          <p class="inventory-instruction">
+            Check each required formula if you currently have
+            at least one representative container in stock.
+          </p>
+
+          <div class="check-grid">
+
+            ${requirement.formulasRequired
+              .map(
+                (formula, index) => `
+                  <label class="inventory-check">
+                    <input
+                      type="checkbox"
+                      data-requirement="${requirement.id}"
+                      data-field="required-formula-${index}"
+                    >
+                    <span>${formula}</span>
+                  </label>
+                `
+              )
+              .join("")}
+
+          </div>
+
+          <div class="request-formula-note">
+
+            <strong>72-hour request provision</strong>
+
+            <span>
+              ${requirement.formulasOnRequest.join(" and ")}
+              must be stocked within 72 hours when requested
+              by a WIC customer or staff member.
+            </span>
+
+          </div>
+
+        </div>
+      `;
+
+
+    /* -----------------------------------------------------
+       INFANT FRUITS / VEGETABLES
+       ----------------------------------------------------- */
+
+    case "infant-produce":
+      return `
+        <div class="inventory-grid">
+
+          ${numberField(
+            requirement.id,
+            "varieties",
+            "Varieties in stock",
+            `Minimum: ${requirement.varieties}`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "singles",
+            "Single containers",
+            `Equivalent minimum: ${requirement.singleMinimum}`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "twoPacks",
+            "2-packs",
+            `Equivalent minimum: ${requirement.twoPackMinimum}`
+          )}
+
+        </div>
+
+        <p class="field-footnote">
+          You can enter singles, 2-packs, or a combination of both.
+        </p>
+      `;
+
+
+    /* -----------------------------------------------------
+       YOGURT WITH WHOLE + LOW-FAT REQUIREMENTS
+       ----------------------------------------------------- */
+
+    case "yogurt":
+      return `
+        <div class="inventory-grid">
+
+          ${numberField(
+            requirement.id,
+            "varieties",
+            "Varieties in stock",
+            `Minimum: ${requirement.varieties}`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "wholeFat",
+            "Whole-fat containers",
+            `Minimum: ${requirement.wholeFatMinimum}`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "lowFat",
+            "Low-fat containers",
+            `Minimum: ${requirement.lowFatMinimum}`
+          )}
+
+        </div>
+      `;
+
+
+    /* -----------------------------------------------------
+       CHEESE — 8 OZ / 16 OZ
+       ----------------------------------------------------- */
+
+    case "either-size":
+      return `
+        <div class="inventory-grid">
+
+          ${numberField(
+            requirement.id,
+            "varieties",
+            "Varieties in stock",
+            `Minimum: ${requirement.varieties}`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "sizeOne",
+            requirement.options[0].size,
+            `Minimum if used alone: ${requirement.options[0].minimum}`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "sizeTwo",
+            requirement.options[1].size,
+            `Minimum if used alone: ${requirement.options[1].minimum}`
+          )}
+
+        </div>
+      `;
+
+
+    /* -----------------------------------------------------
+       BREAKFAST CEREAL
+       ----------------------------------------------------- */
+
+    case "cereal":
+      return `
+        <div class="inventory-grid">
+
+          ${numberField(
+            requirement.id,
+            "varieties",
+            "Total varieties",
+            `Minimum: ${requirement.varieties}`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "quantity",
+            "Boxes or bags",
+            `Minimum: ${requirement.minimum}`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "wholeGrain",
+            "Whole-grain varieties",
+            `Minimum: ${requirement.wholeGrainVarieties}`
+          )}
+
+        </div>
+      `;
+
+
+    /* -----------------------------------------------------
+       DRIED / CANNED BEANS
+       ----------------------------------------------------- */
+
+    case "beans":
+      return `
+        <div class="inventory-grid">
+
+          ${numberField(
+            requirement.id,
+            "varieties",
+            "Varieties in stock",
+            `Minimum: ${requirement.varieties}`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "dried",
+            "Dried packages",
+            `Minimum if used alone: ${requirement.driedMinimum}`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "canned",
+            "Cans",
+            `Minimum if used alone: ${requirement.cannedMinimum}`
+          )}
+
+        </div>
+      `;
+
+
+    /* -----------------------------------------------------
+       WHOLE GRAINS WITH BREAD REQUIREMENT
+       ----------------------------------------------------- */
+
+    case "whole-grain":
+      return `
+        <div class="inventory-grid">
+
+          ${numberField(
+            requirement.id,
+            "varieties",
+            "Total varieties",
+            `Minimum: ${requirement.varieties}`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "quantity",
+            "Total packages",
+            `Minimum: ${requirement.minimum}`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "breadVarieties",
+            "Bread varieties",
+            `Minimum: ${requirement.breadVarieties}`
+          )}
+
+        </div>
+      `;
+
+
+    /* -----------------------------------------------------
+       MILK — PEER GROUP 1
+       ----------------------------------------------------- */
+
+    case "milk-pg1":
+      return buildMilkFields(requirement, true);
+
+
+    /* -----------------------------------------------------
+       MILK — PEER GROUPS 2 & 3
+       Source contains a type-count discrepancy, so we
+       collect the listed types without silently resolving it.
+       ----------------------------------------------------- */
+
+    case "milk-pg2":
+    case "milk-pg3":
+      return buildMilkFields(requirement, false);
+
+
+    /* -----------------------------------------------------
+       MILK — PEER GROUPS 4–6
+       ----------------------------------------------------- */
+
+    case "split-milk":
+      return `
+        <div class="inventory-grid">
+
+          ${numberField(
+            requirement.id,
+            "varieties",
+            "Qualifying milk types",
+            `Minimum: ${requirement.varieties}`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "whole",
+            "Whole milk gallons",
+            `Minimum: ${requirement.wholeMinimum}`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "lowFat",
+            "Low-fat / fat-free gallons",
+            `Minimum: ${requirement.lowFatMinimum}`
+          )}
+
+        </div>
+      `;
+
+
+    /* -----------------------------------------------------
+       FRUITS / VEGETABLES — PG 1–4
+       ----------------------------------------------------- */
+
+    case "produce-and":
+      return `
+        <div class="inventory-grid">
+
+          ${numberField(
+            requirement.id,
+            "varieties",
+            "Total varieties",
+            `Minimum: ${requirement.varieties}`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "subcategories",
+            "Subcategories represented",
+            `Minimum: ${requirement.subcategories}`
+          )}
+
+          ${
+            requirement.freshVarieties !== undefined
+              ? numberField(
+                  requirement.id,
+                  "freshVarieties",
+                  "Fresh varieties",
+                  `Minimum: ${requirement.freshVarieties}`
+                )
+              : ""
+          }
+
+          ${numberField(
+            requirement.id,
+            "freshPounds",
+            "Fresh pounds",
+            `Minimum: ${requirement.freshPounds} lb`
+          )}
+
+        </div>
+
+        <div class="inventory-subsection">
+
+          <span class="inventory-subheading">
+            Additional canned, frozen, or dollar-value stock
+          </span>
+
+          <div class="inventory-grid">
+
+            ${numberField(
+              requirement.id,
+              "canned",
+              "Cans",
+              `Minimum if used alone: ${requirement.cannedMinimum}`
+            )}
+
+            ${numberField(
+              requirement.id,
+              "frozen",
+              "Frozen bags",
+              `Minimum if used alone: ${requirement.frozenMinimum}`
+            )}
+
+            ${numberField(
+              requirement.id,
+              "dollarValue",
+              "Dollar value",
+              `Minimum if used alone: $${requirement.dollarMinimum}`,
+              "0.01"
+            )}
+
+          </div>
+
+        </div>
+      `;
+
+
+    /* -----------------------------------------------------
+       FRUITS / VEGETABLES — PG 5–6
+       ----------------------------------------------------- */
+
+    case "produce-or":
+      return `
+        <div class="inventory-grid">
+
+          ${numberField(
+            requirement.id,
+            "varieties",
+            "Varieties in stock",
+            `Minimum: ${requirement.varieties}`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "freshPounds",
+            "Fresh pounds",
+            `Minimum if used alone: ${requirement.freshPounds} lb`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "canned",
+            "Cans",
+            `Minimum if used alone: ${requirement.cannedMinimum}`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "frozen",
+            "Frozen bags",
+            `Minimum if used alone: ${requirement.frozenMinimum}`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "dollarValue",
+            "Dollar value",
+            `Minimum if used alone: $${requirement.dollarMinimum}`,
+            "0.01"
+          )}
+
+        </div>
+      `;
+
+
+    default:
+      return `
+        <div class="inventory-placeholder">
+          Inventory check unavailable for this category.
+        </div>
+      `;
+  }
+}
+
+
+/* =========================================================
+   REUSABLE NUMBER FIELD
+   ========================================================= */
+
+function numberField(
+  requirementId,
+  field,
+  label,
+  helper,
+  step = "1"
+) {
+
+  return `
+    <label class="stock-field">
+
+      <span class="stock-field-label">
+        ${label}
+      </span>
+
+      <input
+        type="number"
+        min="0"
+        step="${step}"
+        inputmode="decimal"
+        placeholder="0"
+        data-requirement="${requirementId}"
+        data-field="${field}"
+      >
+
+      <span class="stock-field-helper">
+        ${helper}
+      </span>
+
+    </label>
+  `;
+}
+
+
+/* =========================================================
+   MILK FIELD BUILDER
+   ========================================================= */
+
+function buildMilkFields(requirement, enforceAllTypes) {
+
+  return `
+    <div class="inventory-grid">
+
+      ${numberField(
+        requirement.id,
+        "quantity",
+        "Total gallons",
+        `Minimum: ${requirement.minimum}`
+      )}
+
+      ${numberField(
+        requirement.id,
+        "sizes",
+        "Container sizes represented",
+        `Minimum: ${requirement.sizesRequired}`
+      )}
+
+    </div>
+
+    <div class="inventory-subsection">
+
+      <span class="inventory-subheading">
+        Milk types currently in stock
+      </span>
+
+      ${
+        !enforceAllTypes && requirement.sourceNote
+          ? `
+            <p class="inventory-instruction">
+              StockCheck is displaying the milk types exactly
+              as listed in the current source standards.
+            </p>
+          `
+          : ""
+      }
+
+      <div class="check-grid">
+
+        ${requirement.milkTypes
+          .map(
+            (milk, index) => `
+              <label class="inventory-check">
+
+                <input
+                  type="checkbox"
+                  data-requirement="${requirement.id}"
+                  data-field="milk-type-${index}"
+                >
+
+                <span>${milk}</span>
+
+              </label>
+            `
+          )
+          .join("")}
+
+      </div>
+
+    </div>
+  `;
+}
 
 /* =========================================================
    HUMAN-READABLE REQUIREMENT SUMMARIES
@@ -1414,7 +2069,198 @@ function addAssessmentStyles() {
       }
 
     }
+    /* ================================================
+       INVENTORY INPUTS
+       ================================================ */
 
+    .inventory-section {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+    }
+
+    .inventory-section-header {
+      margin-bottom: 14px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 15px;
+    }
+
+    .inventory-section-header > div {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .inventory-kicker,
+    .inventory-subheading {
+      color: var(--wic-blue);
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: .8px;
+    }
+
+    .inventory-section-header strong {
+      margin-top: 2px;
+      color: var(--wic-blue-dark);
+      font-size: 12px;
+    }
+
+    .inventory-help {
+      color: var(--text-light);
+      font-size: 9px;
+    }
+
+    .inventory-grid {
+      display: grid;
+      grid-template-columns:
+        repeat(auto-fit, minmax(170px, 1fr));
+      gap: 11px;
+    }
+
+    .stock-field {
+      min-width: 0;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #d9e4e7;
+      border-radius: 11px;
+      background: #fbfcfc;
+    }
+
+    .stock-field-label {
+      margin-bottom: 7px;
+      color: var(--wic-blue-dark);
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .stock-field input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px 11px;
+      border: 1px solid #cbdadd;
+      border-radius: 8px;
+      outline: none;
+      background: white;
+      color: var(--wic-blue-dark);
+      font: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      transition:
+        border-color .2s ease,
+        box-shadow .2s ease;
+    }
+
+    .stock-field input:focus {
+      border-color: var(--wic-blue);
+      box-shadow:
+        0 0 0 3px rgba(0, 90, 120, .10);
+    }
+
+    .stock-field-helper {
+      margin-top: 6px;
+      color: var(--text-light);
+      font-size: 8px;
+      line-height: 1.35;
+    }
+
+    .inventory-subsection {
+      margin-top: 14px;
+      padding: 13px;
+      border-radius: 11px;
+      background: #f7fafb;
+    }
+
+    .inventory-instruction {
+      margin: 4px 0 11px;
+      color: var(--text-medium);
+      font-size: 9px;
+      line-height: 1.5;
+    }
+
+    .check-grid {
+      margin-top: 9px;
+      display: grid;
+      grid-template-columns:
+        repeat(auto-fit, minmax(190px, 1fr));
+      gap: 8px;
+    }
+
+    .inventory-check {
+      min-height: 42px;
+      padding: 9px 10px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      border: 1px solid #dce6e8;
+      border-radius: 9px;
+      background: white;
+      color: #405b64;
+      font-size: 9px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .inventory-check input {
+      width: 17px;
+      height: 17px;
+      flex: 0 0 auto;
+      accent-color: var(--wic-green);
+    }
+
+    .request-formula-note {
+      margin-top: 11px;
+      padding: 10px 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      border-left: 3px solid var(--wic-green);
+      border-radius: 4px;
+      background: var(--light-green);
+    }
+
+    .request-formula-note strong {
+      color: var(--wic-green-dark);
+      font-size: 9px;
+    }
+
+    .request-formula-note span {
+      color: #55703b;
+      font-size: 8px;
+      line-height: 1.45;
+    }
+
+    .field-footnote {
+      margin: 8px 0 0;
+      color: var(--text-light);
+      font-size: 8px;
+      font-style: italic;
+    }
+
+    @media (max-width: 600px) {
+
+      .inventory-section-header {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 3px;
+      }
+
+      .inventory-grid,
+      .check-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stock-field input {
+        min-height: 44px;
+        font-size: 16px;
+      }
+
+      .inventory-check {
+        min-height: 44px;
+      }
+
+    }
   `;
 
   document.head.appendChild(style);
