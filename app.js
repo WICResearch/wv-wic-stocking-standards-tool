@@ -1254,6 +1254,47 @@ function evaluateStandardRequirement(
 
   return "attention";
 }
+function evaluateInfantProduceRequirement(
+  card,
+  requirement
+) {
+
+  const varieties = Number(
+    card.querySelector(
+      '[data-field="varieties"]'
+    )?.value || 0
+  );
+
+  const singles = Number(
+    card.querySelector(
+      '[data-field="singles"]'
+    )?.value || 0
+  );
+
+  const twoPacks = Number(
+    card.querySelector(
+      '[data-field="twoPacks"]'
+    )?.value || 0
+  );
+
+  const meetsVarieties =
+    varieties >= requirement.varieties;
+
+  const equivalentSingles =
+    singles + (twoPacks * 2);
+
+  const meetsQuantity =
+    equivalentSingles >= requirement.singleMinimum;
+
+  if (
+    meetsVarieties &&
+    meetsQuantity
+  ) {
+    return "meets";
+  }
+
+  return "attention";
+}
 function updateRequirementStatus(requirement, result) {
 
   const card = document.querySelector(
