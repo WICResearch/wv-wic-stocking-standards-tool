@@ -1111,14 +1111,157 @@ function handleInventoryChange(input, requirements) {
     return;
   }
 
-  console.log(
-    "StockCheck inventory changed:",
-    requirement.category,
-    input.dataset.field,
-    input.type === "checkbox"
-      ? input.checked
-      : input.value
+ const result = evaluateRequirement(requirement);
+
+updateRequirementStatus(requirement, result);
+
+console.log(
+  "StockCheck result:",
+  requirement.category,
+  result
+);
+
+}
+function evaluateRequirement(requirement) {
+
+  const card = document.querySelector(
+    `.requirement-card[data-requirement="${requirement.id}"]`
   );
+
+  if (!card) {
+    return "not-checked";
+  }
+
+  const inputs = Array.from(
+    card.querySelectorAll(
+      'input[data-requirement]'
+    )
+  );
+
+  const hasUserInput = inputs.some((input) => {
+    if (input.type === "checkbox") {
+      return input.checked;
+    }
+
+    return input.value !== "";
+  });
+
+  if (!hasUserInput) {
+    return "not-checked";
+  }
+
+  switch (requirement.type) {
+
+    case "formula":
+      return evaluateFormulaRequirement(
+        card,
+        requirement,
+        "formula-"
+      );
+
+    case "formula-request":
+      return evaluateFormulaRequirement(
+        card,
+        requirement,
+        "required-formula-"
+      );
+
+    default:
+      return "not-checked";
+  }
+
+}
+
+
+function evaluateFormulaRequirement(
+  card,
+  requirement,
+  checkboxPrefix
+) {
+
+  const quantityInput = card.querySelector(
+    '[data-field="quantity"]'
+  );
+
+  const quantity =
+    Number(quantityInput?.value || 0);
+
+  const formulaCheckboxes = Array.from(
+    card.querySelectorAll(
+      `input[data-field^="${checkboxPrefix}"]`
+    )
+  );
+
+  const allRequiredFormulasPresent =
+    formulaCheckboxes.length > 0 &&
+    formulaCheckboxes.every(
+      (checkbox) => checkbox.checked
+    );
+
+  const meetsQuantity =
+    quantity >= requirement.minimum;
+
+  if (
+    meetsQuantity &&
+    allRequiredFormulasPresent
+  ) {
+    return "meets";
+  }
+
+  return "attention";
+}
+function updateRequirementStatus(requirement, result) {
+
+  const card = document.querySelector(
+    `.requirement-card[data-requirement="${requirement.id}"]`
+  );
+
+  if (!card) {
+    return;
+  }
+
+  const status = card.querySelector(
+    ".requirement-status"
+  );
+
+  if (!status) {
+    return;
+  }
+
+  status.classList.remove(
+    "status-not-checked",
+    "status-success",
+    "status-attention"
+  );
+
+  if (result === "meets") {
+
+    status.classList.add("status-success");
+
+    status.innerHTML = `
+      <span class="status-symbol">✓</span>
+      <span>Meets Requirement</span>
+    `;
+
+  } else if (result === "attention") {
+
+    status.classList.add("status-attention");
+
+    status.innerHTML = `
+      <span class="status-symbol">!</span>
+      <span>Needs Attention</span>
+    `;
+
+  } else {
+
+    status.classList.add("status-not-checked");
+
+    status.innerHTML = `
+      <span class="status-symbol">○</span>
+      <span>Not Checked</span>
+    `;
+
+  }
 
 }
 /* =========================================================
@@ -1731,7 +1874,16 @@ function addAssessmentStyles() {
       background: #f1f4f5;
       color: #778b92;
     }
+.status-success {
+  background: var(--light-green);
+  color: var(--success);
+}
 
+
+.status-attention {
+  background: #fff0dd;
+  color: var(--warning);
+}
 
     .status-symbol {
       font-size: 11px;
