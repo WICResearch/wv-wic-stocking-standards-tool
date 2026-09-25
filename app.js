@@ -1256,14 +1256,104 @@ function updateRequirementStatus(requirement, result) {
 
     status.classList.add("status-not-checked");
 
-    status.innerHTML = `
+      status.innerHTML = `
       <span class="status-symbol">○</span>
       <span>Not Checked</span>
     `;
 
   }
 
+  updateAssessmentSummary();
+
 }
+function updateAssessmentSummary() {
+
+  const cards = Array.from(
+    document.querySelectorAll(".requirement-card")
+  );
+
+  const total = cards.length;
+
+  const meets = cards.filter((card) =>
+    card
+      .querySelector(".requirement-status")
+      ?.classList.contains("status-success")
+  ).length;
+
+  const attention = cards.filter((card) =>
+    card
+      .querySelector(".requirement-status")
+      ?.classList.contains("status-attention")
+  ).length;
+
+  const notChecked = total - meets - attention;
+  const completed = meets + attention;
+
+  const percent =
+    total > 0
+      ? Math.round((completed / total) * 100)
+      : 0;
+
+
+  const notCheckedCount =
+    document.getElementById("notCheckedCount");
+
+  const meetsCount =
+    document.getElementById("meetsCount");
+
+  const attentionCount =
+    document.getElementById("attentionCount");
+
+  const completedCount =
+    document.getElementById("completedCount");
+
+  const progressPercent =
+    document.getElementById("progressPercent");
+
+  const assessmentProgress =
+    document.getElementById("assessmentProgress");
+
+  const summaryRing =
+    document.querySelector(".summary-ring");
+
+
+  if (notCheckedCount) {
+    notCheckedCount.textContent = notChecked;
+  }
+
+  if (meetsCount) {
+    meetsCount.textContent = meets;
+  }
+
+  if (attentionCount) {
+    attentionCount.textContent = attention;
+  }
+
+  if (completedCount) {
+    completedCount.textContent = completed;
+  }
+
+  if (progressPercent) {
+    progressPercent.textContent = `${percent}%`;
+  }
+
+  if (assessmentProgress) {
+    assessmentProgress.style.width = `${percent}%`;
+  }
+
+  if (summaryRing) {
+    const degrees = percent * 3.6;
+
+    summaryRing.style.background = `
+      conic-gradient(
+        var(--wic-green) ${degrees}deg,
+        #e6edef ${degrees}deg
+      )
+    `;
+  }
+
+}
+
 /* =========================================================
    HUMAN-READABLE REQUIREMENT SUMMARIES
    ========================================================= */
