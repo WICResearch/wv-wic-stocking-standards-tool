@@ -1151,16 +1151,13 @@ function evaluateRequirement(requirement) {
   }
 
   switch (requirement.type) {
-case "standard":
-  return evaluateStandardRequirement(
-    card,
-    requirement
-  );
-   case "infant-produce":
-  return evaluateInfantProduceRequirement(
-    card,
-    requirement
-  );     
+
+    case "standard":
+      return evaluateStandardRequirement(card, requirement);
+
+    case "infant-produce":
+      return evaluateInfantProduceRequirement(card, requirement);
+
     case "formula":
       return evaluateFormulaRequirement(
         card,
@@ -1174,6 +1171,37 @@ case "standard":
         requirement,
         "required-formula-"
       );
+
+    case "yogurt":
+      return evaluateYogurtRequirement(card, requirement);
+
+    case "either-size":
+      return evaluateEitherSizeRequirement(card, requirement);
+
+    case "cereal":
+      return evaluateCerealRequirement(card, requirement);
+
+    case "beans":
+      return evaluateBeansRequirement(card, requirement);
+
+    case "whole-grain":
+      return evaluateWholeGrainRequirement(card, requirement);
+
+    case "milk-pg1":
+      return evaluateMilkRequirement(card, requirement, true);
+
+    case "milk-pg2":
+    case "milk-pg3":
+      return evaluateMilkRequirement(card, requirement, false);
+
+    case "split-milk":
+      return evaluateSplitMilkRequirement(card, requirement);
+
+    case "produce-and":
+      return evaluateProduceAndRequirement(card, requirement);
+
+    case "produce-or":
+      return evaluateProduceOrRequirement(card, requirement);
 
     default:
       return "not-checked";
@@ -1295,6 +1323,276 @@ function evaluateInfantProduceRequirement(
 
   return "attention";
 }
+
+function getNumberField(card, field) {
+  return Number(
+    card.querySelector(`[data-field="${field}"]`)?.value || 0
+  );
+}
+
+
+function evaluateYogurtRequirement(card, requirement) {
+  const varieties = getNumberField(card, "varieties");
+  const wholeFat = getNumberField(card, "wholeFat");
+  const lowFat = getNumberField(card, "lowFat");
+
+  return (
+    varieties >= requirement.varieties &&
+    wholeFat >= requirement.wholeFatMinimum &&
+    lowFat >= requirement.lowFatMinimum
+  )
+    ? "meets"
+    : "attention";
+}
+
+
+function evaluateEitherSizeRequirement(card, requirement) {
+  const varieties = getNumberField(card, "varieties");
+  const sizeOne = getNumberField(card, "sizeOne");
+  const sizeTwo = getNumberField(card, "sizeTwo");
+
+  const meetsVarieties =
+    varieties >= requirement.varieties;
+
+  // The source standard gives an OR between the two package-size
+  // minimums. It does not define a mixed-size conversion, so
+  // StockCheck does not invent one.
+  const meetsQuantity =
+    sizeOne >= requirement.options[0].minimum ||
+    sizeTwo >= requirement.options[1].minimum;
+
+  return meetsVarieties && meetsQuantity
+    ? "meets"
+    : "attention";
+}
+
+
+function evaluateCerealRequirement(card, requirement) {
+  const varieties = getNumberField(card, "varieties");
+  const quantity = getNumberField(card, "quantity");
+  const wholeGrain = getNumberField(card, "wholeGrain");
+
+  return (
+    varieties >= requirement.varieties &&
+    quantity >= requirement.minimum &&
+    wholeGrain >= requirement.wholeGrainVarieties
+  )
+    ? "meets"
+    : "attention";
+}
+
+
+function evaluateBeansRequirement(card, requirement) {
+  const varieties = getNumberField(card, "varieties");
+  const dried = getNumberField(card, "dried");
+  const canned = getNumberField(card, "canned");
+
+  const meetsVarieties =
+    varieties >= requirement.varieties;
+
+  // The source standard gives dried OR canned minimums.
+  // No mixed dried/canned equivalency is assumed.
+  const meetsQuantity =
+    dried >= requirement.driedMinimum ||
+    canned >= requirement.cannedMinimum;
+
+  return meetsVarieties && meetsQuantity
+    ? "meets"
+    : "attention";
+}
+
+
+function evaluateWholeGrainRequirement(card, requirement) {
+  const varieties = getNumberField(card, "varieties");
+  const quantity = getNumberField(card, "quantity");
+
+  const meetsVarieties =
+    varieties >= requirement.varieties;
+
+  const meetsQuantity =
+    quantity >= requirement.minimum;
+
+  let meetsBread = true;
+
+  // Some peer groups have a specific bread-variety minimum.
+  // If the requirement does not contain one, no bread minimum
+  // is added by the calculator.
+  if (requirement.breadVarieties !== undefined) {
+    const breadVarieties =
+      getNumberField(card, "breadVarieties");
+
+    meetsBread =
+      breadVarieties >= requirement.breadVarieties;
+  }
+
+  return (
+    meetsVarieties &&
+    meetsQuantity &&
+    meetsBread
+  )
+    ? "meets"
+    : "attention";
+}
+
+
+function evaluateMilkRequirement(
+  card,
+  requirement,
+  enforceAllListedTypes
+) {
+  const quantity = getNumberField(card, "quantity");
+  const sizes = getNumberField(card, "sizes");
+
+  const typeCheckboxes = Array.from(
+    card.querySelectorAll(
+      'input[data-field^="milk-type-"]'
+    )
+  );
+
+  const checkedTypes =
+    typeCheckboxes.filter(
+      (checkbox) => checkbox.checked
+    ).length;
+
+  const meetsQuantity =
+    quantity >= requirement.minimum;
+
+  const meetsSizes =
+    sizes >= requirement.sizesRequired;
+
+  let meetsTypes;
+
+  if (enforceAllListedTypes) {
+    meetsTypes =
+      typeCheckboxes.length > 0 &&
+      checkedTypes === typeCheckboxes.length;
+  } else {
+    /*
+      Peer Groups 2 and 3 contain a source discrepancy between
+      the stated number of milk types and the number of types
+      listed. The calculator preserves that ambiguity instead of
+      silently deciding which statement controls.
+
+      If requirements.js contains an explicit varieties/type-count
+      value, use that stated count. Otherwise require the displayed
+      listed types.
+    */
+    const statedTypeCount =
+      requirement.varieties ??
+      requirement.typeCount ??
+      requirement.milkTypeMinimum;
+
+    meetsTypes =
+      statedTypeCount !== undefined
+        ? checkedTypes >= statedTypeCount
+        : (
+            typeCheckboxes.length > 0 &&
+            checkedTypes === typeCheckboxes.length
+          );
+  }
+
+  return (
+    meetsQuantity &&
+    meetsSizes &&
+    meetsTypes
+  )
+    ? "meets"
+    : "attention";
+}
+
+
+function evaluateSplitMilkRequirement(card, requirement) {
+  const varieties = getNumberField(card, "varieties");
+  const whole = getNumberField(card, "whole");
+  const lowFat = getNumberField(card, "lowFat");
+
+  return (
+    varieties >= requirement.varieties &&
+    whole >= requirement.wholeMinimum &&
+    lowFat >= requirement.lowFatMinimum
+  )
+    ? "meets"
+    : "attention";
+}
+
+
+function evaluateProduceAndRequirement(card, requirement) {
+  const varieties = getNumberField(card, "varieties");
+  const subcategories =
+    getNumberField(card, "subcategories");
+  const freshPounds =
+    getNumberField(card, "freshPounds");
+
+  const meetsVarieties =
+    varieties >= requirement.varieties;
+
+  const meetsSubcategories =
+    subcategories >= requirement.subcategories;
+
+  const meetsFreshPounds =
+    freshPounds >= requirement.freshPounds;
+
+  let meetsFreshVarieties = true;
+
+  if (requirement.freshVarieties !== undefined) {
+    const freshVarieties =
+      getNumberField(card, "freshVarieties");
+
+    meetsFreshVarieties =
+      freshVarieties >= requirement.freshVarieties;
+  }
+
+  const canned = getNumberField(card, "canned");
+  const frozen = getNumberField(card, "frozen");
+  const dollarValue =
+    getNumberField(card, "dollarValue");
+
+  // The source requires the fresh minimum PLUS one of these
+  // additional minimums. No cross-unit conversion is assumed.
+  const meetsAdditionalStock =
+    canned >= requirement.cannedMinimum ||
+    frozen >= requirement.frozenMinimum ||
+    dollarValue >= requirement.dollarMinimum;
+
+  return (
+    meetsVarieties &&
+    meetsSubcategories &&
+    meetsFreshVarieties &&
+    meetsFreshPounds &&
+    meetsAdditionalStock
+  )
+    ? "meets"
+    : "attention";
+}
+
+
+function evaluateProduceOrRequirement(card, requirement) {
+  const varieties = getNumberField(card, "varieties");
+  const freshPounds =
+    getNumberField(card, "freshPounds");
+  const canned = getNumberField(card, "canned");
+  const frozen = getNumberField(card, "frozen");
+  const dollarValue =
+    getNumberField(card, "dollarValue");
+
+  const meetsVarieties =
+    varieties >= requirement.varieties;
+
+  // Peer Groups 5–6 give these stocking options as OR choices.
+  // Mixed-unit equivalencies are not defined in the source, so
+  // StockCheck does not invent a conversion.
+  const meetsQuantity =
+    freshPounds >= requirement.freshPounds ||
+    canned >= requirement.cannedMinimum ||
+    frozen >= requirement.frozenMinimum ||
+    dollarValue >= requirement.dollarMinimum;
+
+  return meetsVarieties && meetsQuantity
+    ? "meets"
+    : "attention";
+}
+
+
 function updateRequirementStatus(requirement, result) {
 
   const card = document.querySelector(
