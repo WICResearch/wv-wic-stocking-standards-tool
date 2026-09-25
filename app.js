@@ -1156,6 +1156,11 @@ case "standard":
     card,
     requirement
   );
+   case "infant-produce":
+  return evaluateInfantProduceRequirement(
+    card,
+    requirement
+  );     
     case "formula":
       return evaluateFormulaRequirement(
         card,
