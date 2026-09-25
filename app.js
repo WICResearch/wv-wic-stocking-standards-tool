@@ -454,11 +454,7 @@ function buildInventoryFields(requirement) {
     /* -----------------------------------------------------
        INFANT FORMULA — PEER GROUPS 1–3
        ----------------------------------------------------- */
-case "standard":
-  return evaluateStandardRequirement(
-    card,
-    requirement
-  );
+
     case "formula":
       return `
         <div class="inventory-grid">
@@ -1155,7 +1151,11 @@ function evaluateRequirement(requirement) {
   }
 
   switch (requirement.type) {
-
+case "standard":
+  return evaluateStandardRequirement(
+    card,
+    requirement
+  );
     case "formula":
       return evaluateFormulaRequirement(
         card,
