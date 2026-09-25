@@ -454,7 +454,11 @@ function buildInventoryFields(requirement) {
     /* -----------------------------------------------------
        INFANT FORMULA — PEER GROUPS 1–3
        ----------------------------------------------------- */
-
+case "standard":
+  return evaluateStandardRequirement(
+    card,
+    requirement
+  );
     case "formula":
       return `
         <div class="inventory-grid">
@@ -1204,6 +1208,41 @@ function evaluateFormulaRequirement(
   if (
     meetsQuantity &&
     allRequiredFormulasPresent
+  ) {
+    return "meets";
+  }
+
+  return "attention";
+}
+function evaluateStandardRequirement(
+  card,
+  requirement
+) {
+
+  const quantityInput = card.querySelector(
+    '[data-field="quantity"]'
+  );
+
+  const varietyInput = card.querySelector(
+    '[data-field="varieties"]'
+  );
+
+  const quantity =
+    Number(quantityInput?.value || 0);
+
+  const varieties =
+    Number(varietyInput?.value || 0);
+
+  const meetsQuantity =
+    quantity >= requirement.minimum;
+
+  const meetsVarieties =
+    requirement.varieties === undefined ||
+    varieties >= requirement.varieties;
+
+  if (
+    meetsQuantity &&
+    meetsVarieties
   ) {
     return "meets";
   }
