@@ -283,7 +283,8 @@ function renderAssessment(peerNumber, peerData) {
   `;
 
   addAssessmentStyles();
-
+initializeInventoryChecks(peerData.requirements);
+   
   document
     .getElementById("backToPeerGroups")
     .addEventListener("click", returnToHome);
@@ -1059,7 +1060,67 @@ function buildMilkFields(requirement, enforceAllTypes) {
     </div>
   `;
 }
+/* =========================================================
+   INVENTORY CHECK INITIALIZATION
+   ========================================================= */
 
+function initializeInventoryChecks(requirements) {
+
+  const requirementsList =
+    document.getElementById("requirementsList");
+
+  if (!requirementsList) {
+    return;
+  }
+
+  const inputs = requirementsList.querySelectorAll(
+    'input[data-requirement]'
+  );
+
+  inputs.forEach((input) => {
+
+    input.addEventListener("input", () => {
+      handleInventoryChange(input, requirements);
+    });
+
+    input.addEventListener("change", () => {
+      handleInventoryChange(input, requirements);
+    });
+
+  });
+
+}
+
+
+/* =========================================================
+   INVENTORY CHANGE HANDLER
+   ========================================================= */
+
+function handleInventoryChange(input, requirements) {
+
+  const requirementId = input.dataset.requirement;
+
+  const requirement = requirements.find(
+    (item) => item.id === requirementId
+  );
+
+  if (!requirement) {
+    console.error(
+      `Requirement ${requirementId} was not found.`
+    );
+    return;
+  }
+
+  console.log(
+    "StockCheck inventory changed:",
+    requirement.category,
+    input.dataset.field,
+    input.type === "checkbox"
+      ? input.checked
+      : input.value
+  );
+
+}
 /* =========================================================
    HUMAN-READABLE REQUIREMENT SUMMARIES
    ========================================================= */
