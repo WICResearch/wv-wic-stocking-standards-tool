@@ -1,4 +1,4 @@
-const STOCKING_REQUIREMENTS = {
+const STOCK_REQUIREMENTS = {
   1: {
     name: "Mass Merchandisers",
     requirements: [
