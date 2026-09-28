@@ -1280,3 +1280,201 @@
     }
 
 }
+
+/* =========================================================
+   REQUIREMENT INFORMATION — READABILITY UPGRADE
+   ========================================================= */
+
+/* Main minimum requirement box */
+.guided-category-card > .minimum-box {
+    padding: 20px 22px !important;
+
+    background: #edf6f8 !important;
+
+    border: 1px solid #cfe1e5 !important;
+    border-left: 5px solid #005A78 !important;
+
+    border-radius: 13px !important;
+}
+
+
+/* "MINIMUM REQUIREMENT" label */
+.guided-category-card .minimum-label {
+    margin-bottom: 7px !important;
+
+    color: #005A78 !important;
+
+    font-size: 11px !important;
+    font-weight: 800 !important;
+
+    letter-spacing: 1px !important;
+}
+
+
+/* Actual minimum requirement text */
+.guided-category-card .minimum-box p {
+    margin: 6px 0 0 !important;
+
+    color: #17313b !important;
+
+    font-size: 16px !important;
+    font-weight: 700 !important;
+
+    line-height: 1.55 !important;
+}
+
+
+/* IMPORTANT DETAILS / explanatory note */
+.guided-category-card > .requirement-note {
+    margin: 14px 30px 0 !important;
+
+    padding: 16px 18px !important;
+
+    display: flex !important;
+    align-items: flex-start !important;
+
+    gap: 12px !important;
+
+    background: #f7fbf4 !important;
+
+    border: 1px solid #dcebc9 !important;
+    border-left: 4px solid #78BE20 !important;
+
+    border-radius: 12px !important;
+
+    color: #294851 !important;
+}
+
+
+/* Information icon */
+.guided-category-card > .requirement-note > span {
+    width: 25px !important;
+    height: 25px !important;
+
+    flex: 0 0 25px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    background: #78BE20 !important;
+
+    border-radius: 50% !important;
+
+    color: #ffffff !important;
+
+    font-size: 13px !important;
+    font-weight: 800 !important;
+}
+
+
+/* Useful explanatory requirement text */
+.guided-category-card > .requirement-note p {
+    margin: 0 !important;
+
+    color: #294851 !important;
+
+    font-size: 14px !important;
+    font-weight: 600 !important;
+
+    line-height: 1.6 !important;
+}
+
+/* =========================================================
+   REQUIREMENT INFORMATION — READABILITY UPGRADE
+   ========================================================= */
+
+/* Main minimum requirement box */
+.guided-category-card > .minimum-box {
+    padding: 20px 22px !important;
+
+    background: #edf6f8 !important;
+
+    border: 1px solid #cfe1e5 !important;
+    border-left: 5px solid #005A78 !important;
+
+    border-radius: 13px !important;
+}
+
+
+/* "MINIMUM REQUIREMENT" label */
+.guided-category-card .minimum-label {
+    margin-bottom: 7px !important;
+
+    color: #005A78 !important;
+
+    font-size: 11px !important;
+    font-weight: 800 !important;
+
+    letter-spacing: 1px !important;
+}
+
+
+/* Actual minimum requirement text */
+.guided-category-card .minimum-box p {
+    margin: 6px 0 0 !important;
+
+    color: #17313b !important;
+
+    font-size: 16px !important;
+    font-weight: 700 !important;
+
+    line-height: 1.55 !important;
+}
+
+
+/* IMPORTANT DETAILS / explanatory note */
+.guided-category-card > .requirement-note {
+    margin: 14px 30px 0 !important;
+
+    padding: 16px 18px !important;
+
+    display: flex !important;
+    align-items: flex-start !important;
+
+    gap: 12px !important;
+
+    background: #f7fbf4 !important;
+
+    border: 1px solid #dcebc9 !important;
+    border-left: 4px solid #78BE20 !important;
+
+    border-radius: 12px !important;
+
+    color: #294851 !important;
+}
+
+
+/* Information icon */
+.guided-category-card > .requirement-note > span {
+    width: 25px !important;
+    height: 25px !important;
+
+    flex: 0 0 25px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    background: #78BE20 !important;
+
+    border-radius: 50% !important;
+
+    color: #ffffff !important;
+
+    font-size: 13px !important;
+    font-weight: 800 !important;
+}
+
+
+/* Useful explanatory requirement text */
+.guided-category-card > .requirement-note p {
+    margin: 0 !important;
+
+    color: #294851 !important;
+
+    font-size: 14px !important;
+    font-weight: 600 !important;
+
+    line-height: 1.6 !important;
+}
