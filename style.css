@@ -9,3 +9,283 @@
 .results-hero{padding:28px;display:flex;align-items:center;gap:20px;border:1px solid var(--border);border-radius:22px;background:white;box-shadow:var(--shadow-sm)}.results-hero.success{border-top:5px solid var(--wic-green)}.results-hero.attention{border-top:5px solid #d88416}.results-logo{width:70px;height:70px;object-fit:contain}.results-hero h1{margin:4px 0 6px;color:var(--wic-blue-dark);font-family:Manrope,sans-serif;font-size:clamp(27px,4vw,40px);line-height:1.1}.results-hero p{margin:0;color:var(--text-medium);font-size:12px}.results-stat-grid{margin:20px 0 34px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.results-stat-card{padding:18px;border:1px solid var(--border);border-radius:14px;background:white}.results-stat-card span{display:block;color:var(--text-light);font-size:9px;font-weight:800;text-transform:uppercase}.results-stat-card strong{display:block;margin-top:3px;color:var(--wic-blue-dark);font-family:Manrope,sans-serif;font-size:26px}.results-section{margin-top:30px}.results-section-heading{display:flex;justify-content:space-between;align-items:end;margin-bottom:12px}.results-section-heading h2{margin:3px 0 0;color:var(--wic-blue-dark);font-family:Manrope,sans-serif}.results-list{display:grid;gap:10px}.result-item{padding:17px 19px;display:grid;grid-template-columns:36px 1fr auto;gap:13px;align-items:start;border:1px solid var(--border);border-radius:14px;background:white}.result-item-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;font-weight:900}.result-icon-success{background:var(--light-green);color:var(--success)}.result-icon-attention{background:#fff0dd;color:var(--warning)}.result-item h3{margin:0 0 4px;color:var(--wic-blue-dark);font-family:Manrope,sans-serif;font-size:15px}.result-item p{margin:0;color:var(--text-medium);font-size:10px}.result-item-status{padding:6px 9px;border-radius:999px;white-space:nowrap;font-size:8px;font-weight:800}.result-status-success{background:var(--light-green);color:var(--success)}.result-status-attention{background:#fff0dd;color:var(--warning)}.results-disclaimer{margin-top:34px;padding:17px 19px;border:1px solid #d7e4e7;border-radius:14px;background:#f3f8f9;font-size:9px;color:var(--text-medium)}.results-disclaimer strong{color:var(--wic-blue-dark)}.results-actions{margin-top:20px;display:flex;justify-content:flex-end}
 @media(max-width:1000px){.hero-container{grid-template-columns:1fr;gap:45px}.hero-visual{justify-self:center}.peer-grid{grid-template-columns:repeat(2,1fr)}.section-heading{grid-template-columns:1fr;gap:14px}.assessment-workspace{grid-template-columns:1fr}.assessment-sidebar{position:static;order:-1}.sidebar-stats{grid-template-columns:repeat(3,1fr)}.sidebar-logo,.sidebar-tip{display:none}.footer-container{grid-template-columns:1fr 1fr}.footer-disclaimer{grid-column:1/-1;text-align:left}}
 @media(max-width:650px){.nav-container,.section-container,.footer-container,.assessment-topbar-inner,.assessment-container,.results-container{width:min(calc(100% - 28px),var(--max-width))}.nav-container{min-height:68px}.brand-logo{width:44px;height:44px}.standards-badge{display:none}.hero-container{width:min(calc(100% - 32px),var(--max-width));min-height:auto;padding:52px 0 70px}.hero h1{font-size:44px}.hero-description{font-size:15px}.primary-button{width:100%;justify-content:center}.stock-preview-card{padding:22px}.peer-grid{grid-template-columns:1fr}.peer-card{min-height:225px}.info-card{grid-template-columns:1fr;text-align:center}.info-wic-logo{margin:auto}.info-detail{justify-content:space-between}.footer-container{grid-template-columns:1fr}.doh-logo{width:100%;max-width:280px}.assessment-heading-row{align-items:flex-start;flex-direction:column}.progress-summary{min-width:0;width:100%;text-align:left}.category-nav-wrap{top:68px;margin-left:-5px;margin-right:-5px}.guided-title-row{flex-direction:column;gap:10px}.guided-card-header,.guided-card-body,.guided-actions{padding-left:18px;padding-right:18px}.guided-actions{align-items:stretch;flex-direction:column}.action-group{width:100%}.action-group button{flex:1}.inventory-grid,.check-grid{grid-template-columns:1fr}.inventory-section-header{align-items:flex-start;flex-direction:column;gap:3px}.sidebar-stats{grid-template-columns:1fr}.results-stat-grid{grid-template-columns:1fr}.results-hero{align-items:flex-start}.results-logo{width:54px;height:54px}.result-item{grid-template-columns:34px 1fr}.result-item-status{grid-column:2;justify-self:start}}
+
+
+/* =========================================================
+   STOCKCHECK ASSESSMENT — POLISHED LAYOUT FIX
+   Paste this at the VERY BOTTOM of style.css
+   ========================================================= */
+
+/* Never show internal source notes to vendors */
+.source-note {
+  display: none !important;
+}
+
+/* ---------- DESKTOP / LAPTOP ---------- */
+@media (min-width: 1001px) {
+
+  .assessment-container,
+  .results-container {
+    width: min(calc(100% - 64px), 1320px);
+    padding-top: 46px;
+  }
+
+  /* Assessment heading */
+  .assessment-heading-row {
+    margin-bottom: 28px;
+  }
+
+  .assessment-heading-row h1 {
+    font-size: 42px;
+  }
+
+  .assessment-heading-row p {
+    font-size: 14px;
+  }
+
+  .progress-summary {
+    min-width: 270px;
+  }
+
+  /* ========================================
+     CATEGORY NAVIGATION
+     Turns tiny scrolling row into clean grid
+     ======================================== */
+
+  .category-nav-wrap {
+    position: relative;
+    top: auto;
+    padding: 16px 18px;
+    margin-bottom: 28px;
+    border-radius: 20px;
+  }
+
+  .category-nav {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(110px, 1fr));
+    gap: 10px;
+    overflow: visible;
+    padding: 0;
+  }
+
+  .category-chip {
+    min-height: 50px;
+    padding: 10px 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+    white-space: normal;
+    line-height: 1.25;
+
+    border-radius: 12px;
+
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .category-chip.active {
+    box-shadow: 0 0 0 2px rgba(0, 90, 120, 0.08);
+  }
+
+  /* ========================================
+     MAIN ASSESSMENT AREA
+     ======================================== */
+
+  .assessment-workspace {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 310px;
+    gap: 28px;
+    align-items: start;
+  }
+
+  .guided-card {
+    border-radius: 24px;
+  }
+
+  .guided-card-header {
+    padding: 30px 34px 25px;
+  }
+
+  .category-counter {
+    font-size: 10px;
+  }
+
+  .guided-title-row h2 {
+    font-size: 32px;
+  }
+
+  .requirement-status {
+    padding: 8px 12px;
+    font-size: 10px;
+  }
+
+  .guided-card-body {
+    padding: 30px 34px 32px;
+  }
+
+  /* ========================================
+     MINIMUM REQUIREMENT
+     ======================================== */
+
+  .minimum-box {
+    padding: 18px 20px;
+    border-left: 4px solid var(--wic-blue);
+  }
+
+  .minimum-label,
+  .inventory-kicker,
+  .inventory-subheading {
+    font-size: 9px;
+  }
+
+  .minimum-box p {
+    margin-top: 6px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .requirement-note {
+    font-size: 11px;
+  }
+
+  /* ========================================
+     INVENTORY SECTION
+     ======================================== */
+
+  .inventory-section {
+    margin-top: 28px;
+    padding-top: 25px;
+  }
+
+  .inventory-section-header {
+    margin-bottom: 18px;
+  }
+
+  .inventory-section-header strong {
+    font-size: 16px;
+  }
+
+  .inventory-help {
+    font-size: 10px;
+  }
+
+  .inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+    gap: 16px;
+  }
+
+  .stock-field {
+    padding: 16px;
+    border-radius: 13px;
+  }
+
+  .stock-field-label {
+    margin-bottom: 8px;
+    font-size: 12px;
+  }
+
+  .stock-field input {
+    min-height: 48px;
+    padding: 11px 13px;
+
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .stock-field-helper {
+    margin-top: 7px;
+    font-size: 9px;
+  }
+
+  /* Checkboxes / special inventory sections */
+
+  .inventory-subsection {
+    padding: 16px;
+  }
+
+  .inventory-instruction {
+    font-size: 10px;
+  }
+
+  .check-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+    gap: 10px;
+  }
+
+  .inventory-check {
+    min-height: 50px;
+    padding: 11px 12px;
+    font-size: 10px;
+  }
+
+  /* ========================================
+     PREVIOUS / CONTINUE BUTTONS
+     ======================================== */
+
+  .guided-actions {
+    padding: 21px 34px;
+  }
+
+  .secondary-button,
+  .continue-button,
+  .results-primary-button {
+    padding: 12px 19px;
+    font-size: 11px;
+  }
+
+  /* ========================================
+     ASSESSMENT SUMMARY SIDEBAR
+     ======================================== */
+
+  .assessment-sidebar {
+    position: sticky;
+    top: 96px;
+
+    padding: 24px;
+
+    border-radius: 20px;
+  }
+
+  .sidebar-logo {
+    width: 76px;
+    height: 60px;
+  }
+
+  .assessment-sidebar h3 {
+    font-size: 19px;
+  }
+
+  .sidebar-stat {
+    padding: 12px 13px;
+    font-size: 11px;
+  }
+
+  .finish-button {
+    padding: 13px;
+    font-size: 11px;
+  }
+
+  .sidebar-tip {
+    font-size: 9px;
+  }
+}
+
+/* ========================================
+   SLIGHTLY SMALLER LAPTOP SCREENS
+   ======================================== */
+
+@media (min-width: 1001px) and (max-width: 1180px) {
+
+  .category-nav {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .assessment-workspace {
+    grid-template-columns: minmax(0, 1fr) 280px;
+  }
+}
