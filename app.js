@@ -614,11 +614,10 @@ function buildInventoryFields(requirement) {
       `;
 
 
-    case "milk-pg1":
-    case "milk-pg2":
-    case "milk-pg3":
-      return buildMilkFields(requirement);
-
+   case "milk-pg1":
+case "milk-pg2":
+case "milk-pg3":
+  return `Stock the required quantities of each qualifying milk type shown below.`;
 
     case "split-milk":
       return `
