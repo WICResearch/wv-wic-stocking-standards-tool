@@ -285,6 +285,227 @@
     grid-template-columns: repeat(4, 1fr);
   }
 
+   /* =========================================================
+   FINAL CATEGORY / PEER GROUP REQUIREMENTS NAVIGATION FIX
+   Paste at the VERY BOTTOM of style.css
+   ========================================================= */
+
+@media (min-width: 1001px) {
+
+  /* Outer container */
+  .category-nav-wrap {
+    position: relative !important;
+    top: auto !important;
+
+    margin: 0 0 30px 0 !important;
+    padding: 22px 24px !important;
+
+    background: #ffffff !important;
+    border: 1px solid #dce7ea !important;
+    border-radius: 20px !important;
+
+    box-shadow: 0 8px 24px rgba(0, 63, 86, 0.06) !important;
+  }
+
+  /* Category layout */
+  .category-nav {
+    display: grid !important;
+
+    grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+
+    gap: 18px 12px !important;
+
+    width: 100% !important;
+
+    overflow: visible !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Remove the ugly "button" appearance */
+  .category-chip {
+    position: relative !important;
+
+    min-width: 0 !important;
+    min-height: 66px !important;
+
+    padding: 34px 5px 4px !important;
+
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+
+    background: transparent !important;
+
+    border: none !important;
+    border-radius: 0 !important;
+
+    box-shadow: none !important;
+
+    color: #587078 !important;
+
+    font-size: 11px !important;
+    font-weight: 700 !important;
+
+    line-height: 1.25 !important;
+
+    text-align: center !important;
+    white-space: normal !important;
+  }
+
+  /* Circle above every category */
+  .category-chip::before {
+    content: "" !important;
+
+    position: absolute !important;
+
+    top: 0 !important;
+    left: 50% !important;
+
+    transform: translateX(-50%) !important;
+
+    width: 25px !important;
+    height: 25px !important;
+
+    border-radius: 50% !important;
+
+    background: #ffffff !important;
+
+    border: 2px solid #cbdadd !important;
+
+    box-sizing: border-box !important;
+
+    z-index: 2 !important;
+  }
+
+  /* Connecting line */
+  .category-chip::after {
+    content: "" !important;
+
+    position: absolute !important;
+
+    top: 12px !important;
+    left: calc(50% + 13px) !important;
+
+    width: calc(100% - 14px) !important;
+    height: 2px !important;
+
+    background: #dce7ea !important;
+
+    z-index: 1 !important;
+  }
+
+  /* Remove connector after each row */
+  .category-chip:nth-child(7n)::after,
+  .category-chip:last-child::after {
+    display: none !important;
+  }
+
+  /* -------------------------
+     CURRENT CATEGORY
+     ------------------------- */
+
+  .category-chip.active {
+    color: var(--wic-blue-dark) !important;
+
+    background: transparent !important;
+
+    border: none !important;
+
+    box-shadow: none !important;
+  }
+
+  .category-chip.active::before {
+    background: var(--wic-blue) !important;
+
+    border-color: var(--wic-blue) !important;
+
+    box-shadow:
+      0 0 0 5px rgba(0, 90, 120, 0.12) !important;
+  }
+
+  /* -------------------------
+     COMPLETED + PASSED
+     ------------------------- */
+
+  .category-chip.done.meets {
+    color: var(--success) !important;
+
+    background: transparent !important;
+
+    border: none !important;
+  }
+
+  .category-chip.done.meets::before {
+    content: "✓" !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    background: var(--wic-green) !important;
+
+    border-color: var(--wic-green) !important;
+
+    color: #ffffff !important;
+
+    font-size: 14px !important;
+    font-weight: 900 !important;
+  }
+
+  /* -------------------------
+     NEEDS ATTENTION
+     ------------------------- */
+
+  .category-chip.done.attention {
+    color: #a45b00 !important;
+
+    background: transparent !important;
+
+    border: none !important;
+  }
+
+  .category-chip.done.attention::before {
+    content: "!" !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    background: #fff4e6 !important;
+
+    border-color: #d88416 !important;
+
+    color: #a45b00 !important;
+
+    font-size: 14px !important;
+    font-weight: 900 !important;
+  }
+
+}
+
+
+/* =========================================================
+   SMALLER LAPTOPS
+   ========================================================= */
+
+@media (min-width: 1001px) and (max-width: 1180px) {
+
+  .category-nav {
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  }
+
+  .category-chip:nth-child(7n)::after {
+    display: block !important;
+  }
+
+  .category-chip:nth-child(5n)::after,
+  .category-chip:last-child::after {
+    display: none !important;
+  }
+}
+
   .assessment-workspace {
     grid-template-columns: minmax(0, 1fr) 280px;
   }
