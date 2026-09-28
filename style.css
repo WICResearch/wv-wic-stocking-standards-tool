@@ -510,3 +510,773 @@
     grid-template-columns: minmax(0, 1fr) 280px;
   }
 }
+
+/* =========================================================
+   WV WIC STOCKCHECK
+   CURRENT APP.JS VISUAL FIX
+   Paste at the VERY BOTTOM of style.css
+   ========================================================= */
+
+
+/* =========================================================
+   CATEGORY NAVIGATION
+   ========================================================= */
+
+.category-nav-wrap {
+    display: block !important;
+    position: relative !important;
+    top: auto !important;
+
+    margin: 0 0 28px !important;
+    padding: 18px !important;
+
+    background: #ffffff !important;
+
+    border: 1px solid #dce7ea !important;
+    border-radius: 20px !important;
+
+    box-shadow: 0 8px 24px rgba(0, 63, 86, 0.06) !important;
+}
+
+
+.category-nav {
+    display: grid !important;
+
+    grid-template-columns:
+        repeat(7, minmax(0, 1fr)) !important;
+
+    gap: 10px !important;
+
+    width: 100% !important;
+
+    padding: 0 !important;
+    margin: 0 !important;
+
+    overflow: visible !important;
+}
+
+
+/* Individual category */
+
+.category-nav-item {
+    position: relative !important;
+
+    min-width: 0 !important;
+    min-height: 58px !important;
+
+    padding: 10px 8px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    gap: 7px !important;
+
+    background: #f8fbfc !important;
+
+    border: 1px solid #dce7ea !important;
+    border-radius: 12px !important;
+
+    color: #587078 !important;
+
+    font-family: "DM Sans", sans-serif !important;
+
+    font-size: 11px !important;
+    font-weight: 700 !important;
+
+    line-height: 1.25 !important;
+
+    text-align: center !important;
+
+    box-shadow: none !important;
+
+    transition:
+        transform .15s ease,
+        border-color .15s ease,
+        background .15s ease,
+        box-shadow .15s ease !important;
+}
+
+
+.category-nav-item:hover {
+    transform: translateY(-2px) !important;
+
+    border-color: rgba(0, 90, 120, .35) !important;
+
+    background: #ffffff !important;
+
+    box-shadow:
+        0 6px 16px rgba(0, 63, 86, .08) !important;
+}
+
+
+/* Circle symbol */
+
+.category-nav-symbol {
+    width: 20px !important;
+    height: 20px !important;
+
+    flex: 0 0 20px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 50% !important;
+
+    background: #ffffff !important;
+
+    border: 1.5px solid #b9cbd0 !important;
+
+    color: #789099 !important;
+
+    font-size: 11px !important;
+    font-weight: 800 !important;
+}
+
+
+.category-nav-name {
+    display: block !important;
+
+    min-width: 0 !important;
+
+    white-space: normal !important;
+
+    text-align: left !important;
+}
+
+
+/* CURRENT category */
+
+.category-nav-item.active {
+    background: #eaf4f7 !important;
+
+    border: 2px solid #005A78 !important;
+
+    color: #003F56 !important;
+
+    box-shadow:
+        0 5px 15px rgba(0, 90, 120, .10) !important;
+}
+
+
+.category-nav-item.active .category-nav-symbol {
+    background: #005A78 !important;
+
+    border-color: #005A78 !important;
+
+    color: #ffffff !important;
+}
+
+
+/* COMPLETED + MEETS */
+
+.category-nav-item.nav-success {
+    background: #f0f8e5 !important;
+
+    border-color: #c9e1aa !important;
+
+    color: #3f7d17 !important;
+}
+
+
+.category-nav-item.nav-success .category-nav-symbol {
+    background: #78BE20 !important;
+
+    border-color: #78BE20 !important;
+
+    color: #ffffff !important;
+}
+
+
+/* COMPLETED + NEEDS ATTENTION */
+
+.category-nav-item.nav-attention {
+    background: #fff6ea !important;
+
+    border-color: #efd2ab !important;
+
+    color: #8c520b !important;
+}
+
+
+.category-nav-item.nav-attention .category-nav-symbol {
+    background: #d88416 !important;
+
+    border-color: #d88416 !important;
+
+    color: #ffffff !important;
+}
+
+
+
+/* =========================================================
+   ACTUAL CATEGORY ASSESSMENT CARD
+   ========================================================= */
+
+#categoryWorkspace {
+    width: 100% !important;
+    min-width: 0 !important;
+}
+
+
+.guided-category-card {
+    width: 100% !important;
+
+    overflow: hidden !important;
+
+    background: #ffffff !important;
+
+    border: 1px solid #dce7ea !important;
+    border-radius: 22px !important;
+
+    box-shadow:
+        0 12px 35px rgba(0, 63, 86, .08) !important;
+}
+
+
+
+/* =========================================================
+   CATEGORY HEADER
+   ========================================================= */
+
+.guided-category-header {
+    padding: 27px 30px 23px !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    gap: 24px !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ffffff,
+            #f6fafb
+        ) !important;
+
+    border-bottom: 1px solid #e3ecee !important;
+}
+
+
+.requirement-label {
+    display: block !important;
+
+    margin-bottom: 5px !important;
+
+    color: #B6006D !important;
+
+    font-size: 10px !important;
+    font-weight: 800 !important;
+
+    letter-spacing: 1px !important;
+
+    text-transform: uppercase !important;
+}
+
+
+.guided-category-header h2 {
+    margin: 0 !important;
+
+    color: #003F56 !important;
+
+    font-family: "Manrope", sans-serif !important;
+
+    font-size: 29px !important;
+    font-weight: 800 !important;
+
+    line-height: 1.15 !important;
+}
+
+
+
+/* =========================================================
+   STATUS BADGE
+   ========================================================= */
+
+.requirement-status {
+    flex: 0 0 auto !important;
+
+    min-width: 120px !important;
+
+    padding: 9px 13px !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    gap: 7px !important;
+
+    border-radius: 999px !important;
+
+    font-size: 10px !important;
+    font-weight: 800 !important;
+
+    white-space: nowrap !important;
+}
+
+
+.status-symbol {
+    font-size: 12px !important;
+}
+
+
+.requirement-status.status-not-checked {
+    background: #eef3f4 !important;
+
+    color: #647b83 !important;
+}
+
+
+.requirement-status.status-success {
+    background: #f0f8e5 !important;
+
+    color: #3f7d17 !important;
+}
+
+
+.requirement-status.status-attention {
+    background: #fff0dd !important;
+
+    color: #a45b00 !important;
+}
+
+
+
+/* =========================================================
+   MINIMUM REQUIREMENT
+   ========================================================= */
+
+.guided-category-card > .minimum-box {
+    margin: 24px 30px 0 !important;
+
+    padding: 18px 20px !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #edf6f8,
+            #f6fafb
+        ) !important;
+
+    border: 1px solid #d9e8eb !important;
+    border-left: 4px solid #005A78 !important;
+
+    border-radius: 12px !important;
+}
+
+
+.guided-category-card .minimum-label {
+    display: block !important;
+
+    color: #005A78 !important;
+
+    font-size: 9px !important;
+    font-weight: 800 !important;
+
+    letter-spacing: .9px !important;
+
+    text-transform: uppercase !important;
+}
+
+
+.guided-category-card .minimum-box p {
+    margin: 6px 0 0 !important;
+
+    color: #294851 !important;
+
+    font-size: 14px !important;
+    font-weight: 600 !important;
+
+    line-height: 1.55 !important;
+}
+
+
+
+/* =========================================================
+   REQUIREMENT INFORMATION NOTE
+   ========================================================= */
+
+.guided-category-card > .requirement-note {
+    margin: 14px 30px 0 !important;
+
+    padding: 13px 15px !important;
+
+    display: flex !important;
+
+    align-items: flex-start !important;
+
+    gap: 10px !important;
+
+    background: #f8fafb !important;
+
+    border: 1px solid #e4ecee !important;
+
+    border-radius: 11px !important;
+
+    color: #587078 !important;
+}
+
+
+.guided-category-card > .requirement-note > span {
+    width: 20px !important;
+    height: 20px !important;
+
+    flex: 0 0 20px !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 50% !important;
+
+    background: #eaf4f7 !important;
+
+    color: #005A78 !important;
+
+    font-size: 11px !important;
+    font-weight: 800 !important;
+}
+
+
+.guided-category-card > .requirement-note p {
+    margin: 0 !important;
+
+    font-size: 11px !important;
+
+    line-height: 1.55 !important;
+}
+
+
+
+/* Hide internal source notes from vendor view */
+
+.source-note {
+    display: none !important;
+}
+
+
+
+/* =========================================================
+   CURRENT INVENTORY
+   ========================================================= */
+
+.guided-category-card .inventory-section {
+    margin: 24px 30px 0 !important;
+
+    padding: 23px 0 0 !important;
+
+    border-top: 1px solid #e2eaec !important;
+}
+
+
+.guided-category-card .inventory-section-header {
+    margin-bottom: 17px !important;
+
+    display: flex !important;
+
+    align-items: flex-end !important;
+    justify-content: space-between !important;
+
+    gap: 20px !important;
+}
+
+
+.guided-category-card .inventory-section-header > div {
+    display: flex !important;
+
+    flex-direction: column !important;
+}
+
+
+.guided-category-card .inventory-kicker {
+    color: #B6006D !important;
+
+    font-size: 9px !important;
+    font-weight: 800 !important;
+
+    letter-spacing: .8px !important;
+
+    text-transform: uppercase !important;
+}
+
+
+.guided-category-card .inventory-section-header strong {
+    margin-top: 3px !important;
+
+    color: #003F56 !important;
+
+    font-size: 16px !important;
+}
+
+
+.guided-category-card .inventory-help {
+    color: #789099 !important;
+
+    font-size: 10px !important;
+}
+
+
+
+/* =========================================================
+   INVENTORY FIELDS
+   ========================================================= */
+
+.guided-category-card .inventory-grid {
+    display: grid !important;
+
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr)) !important;
+
+    gap: 14px !important;
+}
+
+
+.inventory-field {
+    min-width: 0 !important;
+
+    padding: 15px !important;
+
+    display: flex !important;
+
+    flex-direction: column !important;
+
+    background: #fbfcfc !important;
+
+    border: 1px solid #d9e4e7 !important;
+    border-radius: 12px !important;
+}
+
+
+.inventory-field-label {
+    display: block !important;
+
+    margin-bottom: 8px !important;
+
+    color: #294851 !important;
+
+    font-size: 11px !important;
+    font-weight: 700 !important;
+}
+
+
+.inventory-field input {
+    width: 100% !important;
+    min-height: 46px !important;
+
+    padding: 10px 12px !important;
+
+    background: #ffffff !important;
+
+    border: 1px solid #c8d8dc !important;
+    border-radius: 8px !important;
+
+    outline: none !important;
+
+    color: #003F56 !important;
+
+    font-family: "DM Sans", sans-serif !important;
+
+    font-size: 16px !important;
+    font-weight: 700 !important;
+}
+
+
+.inventory-field input:focus {
+    border-color: #005A78 !important;
+
+    box-shadow:
+        0 0 0 3px rgba(0, 90, 120, .10) !important;
+}
+
+
+.inventory-field small {
+    display: block !important;
+
+    margin-top: 7px !important;
+
+    color: #789099 !important;
+
+    font-size: 9px !important;
+}
+
+
+
+/* =========================================================
+   PREVIOUS / SAVE BUTTON AREA
+   ========================================================= */
+
+.guided-category-actions {
+    margin-top: 26px !important;
+
+    padding: 19px 30px !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    gap: 12px !important;
+
+    background: #f8fafb !important;
+
+    border-top: 1px solid #e1eaec !important;
+}
+
+
+.guided-category-actions .secondary-button,
+.guided-category-actions .primary-button {
+    margin: 0 !important;
+
+    min-height: 43px !important;
+
+    padding: 10px 17px !important;
+
+    border-radius: 10px !important;
+
+    font-size: 11px !important;
+    font-weight: 800 !important;
+}
+
+
+.guided-category-actions .secondary-button {
+    background: #ffffff !important;
+
+    border: 1px solid #d3e0e3 !important;
+
+    color: #003F56 !important;
+}
+
+
+.guided-category-actions .primary-button {
+    background: #005A78 !important;
+
+    border: 1px solid #005A78 !important;
+
+    color: #ffffff !important;
+
+    box-shadow: none !important;
+}
+
+
+.guided-category-actions .primary-button:hover {
+    background: #003F56 !important;
+
+    border-color: #003F56 !important;
+}
+
+
+
+/* =========================================================
+   ASSESSMENT SIDEBAR
+   ========================================================= */
+
+.assessment-sidebar {
+    padding: 23px !important;
+
+    background: #ffffff !important;
+
+    border: 1px solid #dce7ea !important;
+    border-radius: 20px !important;
+
+    box-shadow:
+        0 10px 30px rgba(0, 63, 86, .07) !important;
+}
+
+
+.assessment-sidebar h3 {
+    margin: 4px 0 17px !important;
+
+    color: #003F56 !important;
+
+    font-family: "Manrope", sans-serif !important;
+
+    font-size: 19px !important;
+}
+
+
+.sidebar-stat {
+    padding: 11px 12px !important;
+
+    background: #f7fafb !important;
+
+    border-radius: 10px !important;
+
+    font-size: 10px !important;
+}
+
+
+
+/* =========================================================
+   RESPONSIVE CATEGORY GRID
+   ========================================================= */
+
+@media (min-width: 1001px) and (max-width: 1180px) {
+
+    .category-nav {
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr)) !important;
+    }
+
+}
+
+
+@media (max-width: 1000px) {
+
+    .category-nav {
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr)) !important;
+
+        overflow: visible !important;
+    }
+
+    .guided-category-card .inventory-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+}
+
+
+@media (max-width: 650px) {
+
+    .category-nav-wrap {
+        padding: 12px !important;
+    }
+
+    .category-nav {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .category-nav-item {
+        min-height: 52px !important;
+
+        padding: 8px !important;
+    }
+
+    .guided-category-header {
+        padding: 21px 19px !important;
+
+        align-items: flex-start !important;
+
+        flex-direction: column !important;
+
+        gap: 12px !important;
+    }
+
+    .guided-category-card > .minimum-box,
+    .guided-category-card > .requirement-note,
+    .guided-category-card .inventory-section {
+        margin-left: 19px !important;
+        margin-right: 19px !important;
+    }
+
+    .guided-category-actions {
+        padding: 17px 19px !important;
+    }
+
+}
