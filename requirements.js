@@ -761,8 +761,7 @@ const STOCKING_REQUIREMENTS = {
         freshPounds: 3,
         cannedMinimum: 4,
         frozenMinimum: 5,
-        dollarMinimum: 8,
-        sourceNote: "The source document describes this vegetable requirement using the word “fruit.”"
+        dollarMinimum: 8
       }
     ]
   },
