@@ -1,240 +1,265 @@
-/* =========================================================
-   WV WIC STOCKCHECK — Guided Assessment
-   ========================================================= */
-
+const APP_VERSION = "2026.09.24";
 let selectedPeerGroup = null;
 let currentCategoryIndex = 0;
 let assessmentState = {};
 
-document.addEventListener("DOMContentLoaded", initializePeerGroupCards);
-
-
-/* =========================================================
-   PEER GROUP SELECTION
-   ========================================================= */
+document.addEventListener("DOMContentLoaded", () => {
+  initializePeerGroupCards();
+  trackPageView();
+});
 
 function initializePeerGroupCards() {
-  document.querySelectorAll(".peer-card").forEach(card => {
+  const peerCards = document.querySelectorAll(".peer-card");
+
+  peerCards.forEach((card) => {
     card.addEventListener("click", () => {
-      selectPeerGroup(card.dataset.peer);
+      const peerGroup = Number(card.dataset.peer);
+
+      if (!peerGroup || !STOCK_REQUIREMENTS[peerGroup]) {
+        console.error("Invalid peer group selected:", peerGroup);
+        return;
+      }
+
+      selectedPeerGroup = peerGroup;
+      currentCategoryIndex = 0;
+      assessmentState = {};
+
+      trackEvent("peer_group_selected", {
+        peer_group: peerGroup,
+        peer_group_name: STOCK_REQUIREMENTS[peerGroup].name
+      });
+
+      renderAssessment(peerGroup);
     });
   });
 }
 
+function renderAssessment(peerGroup) {
+  const peerData = STOCK_REQUIREMENTS[peerGroup];
 
-function selectPeerGroup(peerNumber) {
-  const peerData = STOCKING_REQUIREMENTS[peerNumber];
+  if (!peerData) {
+    return;
+  }
 
-  if (!peerData) return;
+  const requirements = peerData.requirements;
+  const currentRequirement = requirements[currentCategoryIndex];
 
-  selectedPeerGroup = String(peerNumber);
-  currentCategoryIndex = 0;
-  assessmentState = {};
+  document.body.innerHTML = `
+    <div class="assessment-shell">
 
-  peerData.requirements.forEach(requirement => {
-    assessmentState[requirement.id] = {
-      values: {},
-      result: "not-checked",
-      complete: false
-    };
-  });
-
-  renderAssessment();
-}
-
-
-/* =========================================================
-   MAIN ASSESSMENT
-   ========================================================= */
-
-function renderAssessment() {
-  const peerData = STOCKING_REQUIREMENTS[selectedPeerGroup];
-  const main = document.querySelector("main");
-
-  main.innerHTML = `
-    <section class="assessment-page">
-
-      <div class="assessment-topbar">
+      <header class="assessment-topbar">
         <div class="assessment-topbar-inner">
 
-          <div class="assessment-brand">
-            <img src="wic-color.jpg" alt="WIC">
-            <strong>WV WIC StockCheck</strong>
-          </div>
-
           <button
-            class="back-button"
-            id="backToPeerGroups"
             type="button"
+            class="assessment-brand"
+            id="returnHomeButton"
+            aria-label="Return to StockCheck home"
           >
-            ← Change Peer Group
+            <img src="wic-color.jpg" alt="WIC">
+            <div>
+              <strong>WV WIC</strong>
+              <span>StockCheck</span>
+            </div>
           </button>
 
-          <div class="assessment-peer-badge">
-            Peer Group ${selectedPeerGroup}
+          <div class="assessment-peer-pill">
+            <span>Peer Group ${peerGroup}</span>
+            <strong>${peerData.name}</strong>
           </div>
 
         </div>
-      </div>
+      </header>
 
-      <div class="assessment-container">
+      <main class="assessment-main">
 
-        <div class="assessment-heading-row">
-
+        <section class="assessment-heading">
           <div>
-            <span class="section-kicker">
-              GUIDED STOCKING ASSESSMENT
-            </span>
-
-            <h1>${peerData.name}</h1>
-
+            <span class="section-kicker">STOCK ASSESSMENT</span>
+            <h1>Check your current inventory</h1>
             <p>
-              Complete one food category at a time.
-              Your entries are saved as you move through the assessment.
+              Work through each food category and enter the stock
+              currently available in your store.
             </p>
           </div>
 
-          <div class="progress-summary">
-            <strong id="progressText">
-              0 of ${peerData.requirements.length} categories completed
-            </strong>
+          <button
+            type="button"
+            class="change-peer-button"
+            id="changePeerButton"
+          >
+            Change peer group
+          </button>
+        </section>
 
-            <div class="progress-track">
-              <div
-                class="progress-fill"
-                id="assessmentProgress"
-              ></div>
+        <section class="assessment-progress-card">
+
+          <div class="assessment-progress-copy">
+            <div>
+              <span class="progress-label">Assessment progress</span>
+              <strong id="completedCount">0 of ${requirements.length} checked</strong>
             </div>
+
+            <span id="progressPercent">0%</span>
           </div>
 
-        </div>
+          <div class="assessment-progress-track">
+            <div
+              class="assessment-progress-fill"
+              id="assessmentProgress"
+              style="width: 0%"
+            ></div>
+          </div>
 
-        <div class="category-nav-wrap">
+          <div class="assessment-status-summary">
+
+            <div class="summary-stat summary-neutral">
+              <span class="summary-stat-number" id="notCheckedCount">
+                ${requirements.length}
+              </span>
+              <span>Not yet checked</span>
+            </div>
+
+            <div class="summary-stat summary-success">
+              <span class="summary-stat-number" id="meetsCount">0</span>
+              <span>Meets requirement</span>
+            </div>
+
+            <div class="summary-stat summary-attention">
+              <span class="summary-stat-number" id="attentionCount">0</span>
+              <span>Needs attention</span>
+            </div>
+
+          </div>
+
+        </section>
+
+        <section class="category-nav-wrap">
+          <div class="category-nav-heading">
+            <div>
+              <span class="section-kicker">FOOD CATEGORIES</span>
+              <h2>Jump to a category</h2>
+            </div>
+
+            <span class="category-count">
+              ${requirements.length} categories
+            </span>
+          </div>
+
           <div
             class="category-nav"
             id="categoryNav"
           ></div>
-        </div>
+        </section>
 
-        <div class="assessment-workspace">
+        <div class="assessment-layout">
 
-          <div id="categoryWorkspace"></div>
+          <section
+            class="assessment-workspace"
+            id="requirementsList"
+          >
+            ${renderCurrentCategory(
+              currentRequirement,
+              requirements,
+              currentCategoryIndex
+            )}
+          </section>
 
           <aside class="assessment-sidebar">
 
-            <img
-              src="wic-color.jpg"
-              class="sidebar-logo"
-              alt="WIC"
-            >
-
-            <span class="section-kicker">
-              YOUR STOCKCHECK
-            </span>
-
-            <h3>Assessment Summary</h3>
-
-            <div class="sidebar-stats">
-
-              <div class="sidebar-stat">
-                <span>Not checked</span>
-                <strong id="notCheckedCount">
-                  ${peerData.requirements.length}
-                </strong>
-              </div>
-
-              <div class="sidebar-stat">
-                <span>Meets requirement</span>
-                <strong id="meetsCount">0</strong>
-              </div>
-
-              <div class="sidebar-stat">
-                <span>Needs attention</span>
-                <strong id="attentionCount">0</strong>
-              </div>
-
+            <div class="sidebar-card">
+              <span class="sidebar-kicker">CURRENT PEER GROUP</span>
+              <strong>Peer Group ${peerGroup}</strong>
+              <p>${peerData.name}</p>
             </div>
 
-            <button
-              class="finish-button"
-              id="finishAssessment"
-              type="button"
-              disabled
-            >
-              View StockCheck Results →
-            </button>
+            <div class="sidebar-card">
+              <span class="sidebar-kicker">HOW TO USE STOCKCHECK</span>
 
-            <p class="sidebar-tip">
-              The results button becomes available after every
-              category has been completed.
-            </p>
+              <div class="sidebar-step">
+                <span>1</span>
+                <p>
+                  Enter the inventory currently available for the
+                  category shown.
+                </p>
+              </div>
+
+              <div class="sidebar-step">
+                <span>2</span>
+                <p>
+                  StockCheck compares your entries with the minimum
+                  requirement for your peer group.
+                </p>
+              </div>
+
+              <div class="sidebar-step">
+                <span>3</span>
+                <p>
+                  Continue through all categories and review your
+                  results when finished.
+                </p>
+              </div>
+            </div>
+
+            <div class="sidebar-card sidebar-help-card">
+              <span class="sidebar-kicker">REMINDER</span>
+              <p>
+                StockCheck is a self-check tool. Always refer to
+                current West Virginia WIC vendor guidance for
+                official program requirements.
+              </p>
+            </div>
 
           </aside>
 
         </div>
 
-      </div>
+      </main>
 
-    </section>
+    </div>
   `;
 
-  document
-    .getElementById("backToPeerGroups")
-    .addEventListener("click", returnToHome);
-
-  document
-    .getElementById("finishAssessment")
-    .addEventListener("click", showAssessmentResults);
-
-  renderCategoryNav();
-  renderCurrentCategory();
+  renderCategoryNavigation(requirements);
+  initializeAssessmentEvents(requirements);
+  restoreCurrentCategoryValues(currentRequirement);
   updateAssessmentSummary();
-
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
 }
 
+function renderCategoryNavigation(requirements) {
+  const categoryNav = document.getElementById("categoryNav");
 
-/* =========================================================
-   CATEGORY NAVIGATION
-   ========================================================= */
+  if (!categoryNav) {
+    return;
+  }
 
-function renderCategoryNav() {
-  const peerData = STOCKING_REQUIREMENTS[selectedPeerGroup];
-  const nav = document.getElementById("categoryNav");
-
-  if (!nav) return;
-
-  nav.innerHTML = peerData.requirements
+  categoryNav.innerHTML = requirements
     .map((requirement, index) => {
-
       const state = assessmentState[requirement.id];
+      const isCurrent = index === currentCategoryIndex;
 
-      let statusClass = "nav-not-checked";
-      let symbol = "○";
+      let statusClass = "";
+      let statusSymbol = "";
 
-      if (state.complete && state.result === "meets") {
+      if (state?.result === "meets") {
         statusClass = "nav-success";
-        symbol = "✓";
-      }
-
-      if (state.complete && state.result === "attention") {
+        statusSymbol = "✓";
+      } else if (state?.result === "attention") {
         statusClass = "nav-attention";
-        symbol = "!";
+        statusSymbol = "!";
       }
 
       return `
         <button
           type="button"
-          class="category-nav-item
-                 ${index === currentCategoryIndex ? "active" : ""}
-                 ${statusClass}"
-          data-index="${index}"
+          class="
+            category-nav-item
+            ${isCurrent ? "active" : ""}
+            ${statusClass}
+          "
+          data-category-index="${index}"
         >
           <span class="category-nav-symbol">
-            ${symbol}
+            ${statusSymbol || index + 1}
           </span>
 
           <span class="category-nav-name">
@@ -245,73 +270,69 @@ function renderCategoryNav() {
     })
     .join("");
 
-  nav.querySelectorAll(".category-nav-item").forEach(button => {
-    button.addEventListener("click", () => {
-      currentCategoryIndex = Number(button.dataset.index);
-      renderCategoryNav();
-      renderCurrentCategory();
-      scrollToWorkspace();
+  categoryNav
+    .querySelectorAll(".category-nav-item")
+    .forEach((button) => {
+      button.addEventListener("click", () => {
+        saveCurrentCategoryValues(requirements[currentCategoryIndex]);
+
+        currentCategoryIndex =
+          Number(button.dataset.categoryIndex);
+
+        renderAssessment(selectedPeerGroup);
+      });
     });
-  });
 }
 
-
-/* =========================================================
-   CURRENT CATEGORY
-   ========================================================= */
-
-function renderCurrentCategory() {
-  const peerData = STOCKING_REQUIREMENTS[selectedPeerGroup];
-  const requirement = peerData.requirements[currentCategoryIndex];
-  const state = assessmentState[requirement.id];
-  const workspace = document.getElementById("categoryWorkspace");
-
-  if (!workspace) return;
+function renderCurrentCategory(
+  requirement,
+  requirements,
+  categoryIndex
+) {
+  const storedState = assessmentState[requirement.id];
+  const result = storedState?.result || "not-checked";
 
   let statusClass = "status-not-checked";
-  let statusText = "Not Checked";
+  let statusText = "Not Yet Checked";
   let statusSymbol = "○";
 
-  if (state.complete && state.result === "meets") {
+  if (result === "meets") {
     statusClass = "status-success";
     statusText = "Meets Requirement";
     statusSymbol = "✓";
-  }
-
-  if (state.complete && state.result === "attention") {
+  } else if (result === "attention") {
     statusClass = "status-attention";
     statusText = "Needs Attention";
     statusSymbol = "!";
   }
 
-  workspace.innerHTML = `
-    <article class="guided-category-card">
+  return `
+    <article
+      class="guided-category-card requirement-card"
+      data-requirement="${requirement.id}"
+    >
 
       <div class="guided-category-header">
 
         <div>
           <span class="requirement-label">
-            CATEGORY ${currentCategoryIndex + 1}
-            OF ${peerData.requirements.length}
+            Category ${categoryIndex + 1} of ${requirements.length}
           </span>
 
           <h2>${requirement.category}</h2>
         </div>
 
-        <div class="requirement-status ${statusClass}">
-          <span class="status-symbol">
-            ${statusSymbol}
-          </span>
-
-          <span>
-            ${statusText}
-          </span>
+        <div
+          class="requirement-status ${statusClass}"
+          id="status-${requirement.id}"
+        >
+          <span class="status-symbol">${statusSymbol}</span>
+          <span>${statusText}</span>
         </div>
 
       </div>
 
       <div class="minimum-box">
-
         <span class="minimum-label">
           MINIMUM REQUIREMENT
         </span>
@@ -319,110 +340,92 @@ function renderCurrentCategory() {
         <p>
           ${getRequirementSummary(requirement)}
         </p>
-
       </div>
 
       ${
         requirement.note
           ? `
-         <div class="requirement-note">
-  <span class="requirement-note-icon">i</span>
+            <div class="requirement-note">
+              <span class="requirement-note-icon">i</span>
 
-  <div class="requirement-note-content">
-    <strong class="requirement-note-title">
-      STOCKING DETAILS
-    </strong>
+              <div class="requirement-note-content">
+                <strong class="requirement-note-title">
+                  STOCKING DETAILS
+                </strong>
 
-    <p>
-      ${requirement.note}
-    </p>
-  </div>
-</div>  
+                <p>
+                  ${requirement.note}
+                </p>
+              </div>
+            </div>
           `
           : ""
       }
 
-      <div class="inventory-section">
+      <section class="inventory-section">
 
-        <div class="inventory-section-header">
-
+        <div class="inventory-section-heading">
           <div>
-            <span class="inventory-kicker">
+            <span class="section-kicker">
               CURRENT INVENTORY
             </span>
 
-            <strong>
-              What do you have in stock?
-            </strong>
+            <h3>What do you currently have in stock?</h3>
           </div>
 
-          <span class="inventory-help">
-            Enter what is available right now
+          <span class="inventory-helper">
+            Enter numbers only
           </span>
-
         </div>
 
         ${buildInventoryFields(requirement)}
 
-      </div>
+      </section>
 
       <div class="guided-category-actions">
 
         <button
           type="button"
           class="secondary-button"
-          id="previousCategory"
-          ${currentCategoryIndex === 0 ? "disabled" : ""}
+          id="previousCategoryButton"
+          ${categoryIndex === 0 ? "disabled" : ""}
         >
           ← Previous
         </button>
 
-        <button
-          type="button"
-          class="primary-button"
-          id="saveCategory"
-        >
-          ${
-            currentCategoryIndex === peerData.requirements.length - 1
-              ? "Save Category"
-              : "Save & Continue →"
-          }
-        </button>
+        <div class="category-position">
+          ${categoryIndex + 1} / ${requirements.length}
+        </div>
+
+        ${
+          categoryIndex < requirements.length - 1
+            ? `
+              <button
+                type="button"
+                class="primary-button"
+                id="nextCategoryButton"
+              >
+                Next Category →
+              </button>
+            `
+            : `
+              <button
+                type="button"
+                class="primary-button"
+                id="viewResultsButton"
+              >
+                View Stock Results →
+              </button>
+            `
+        }
 
       </div>
 
     </article>
   `;
-
-  restoreCurrentValues(requirement);
-  attachCurrentInputListeners(requirement);
-
-  document
-    .getElementById("previousCategory")
-    ?.addEventListener("click", () => {
-
-      if (currentCategoryIndex > 0) {
-        currentCategoryIndex--;
-        renderCategoryNav();
-        renderCurrentCategory();
-        scrollToWorkspace();
-      }
-    });
-
-  document
-    .getElementById("saveCategory")
-    ?.addEventListener("click", () => {
-      saveCurrentCategory(requirement);
-    });
 }
 
-
-/* =========================================================
-   INVENTORY FIELDS
-   ========================================================= */
-
 function buildInventoryFields(requirement) {
-
   switch (requirement.type) {
 
     case "standard":
@@ -450,22 +453,7 @@ function buildInventoryFields(requirement) {
         </div>
       `;
 
-
     case "formula":
-      return `
-        <div class="inventory-grid">
-
-          ${numberField(
-            requirement.id,
-            "quantity",
-            "Total qualifying containers",
-            `Minimum: ${requirement.minimum}`
-          )}
-
-        </div>
-      `;
-
-
     case "formula-request":
       return `
         <div class="inventory-grid">
@@ -480,34 +468,33 @@ function buildInventoryFields(requirement) {
         </div>
       `;
 
-
     case "infant-produce":
-  return `
-    <div class="inventory-grid">
+      return `
+        <div class="inventory-grid">
 
-      ${numberField(
-        requirement.id,
-        "varieties",
-        "Varieties in stock",
-        `Minimum: ${requirement.varieties}`
-      )}
+          ${numberField(
+            requirement.id,
+            "varieties",
+            "Varieties in stock",
+            `Minimum: ${requirement.varieties}`
+          )}
 
-      ${numberField(
-        requirement.id,
-        "single",
-        "Single containers in stock",
-        `Minimum: ${requirement.singleMinimum}`
-      )}
+          ${numberField(
+            requirement.id,
+            "single",
+            "Single containers in stock",
+            `Minimum: ${requirement.singleMinimum}`
+          )}
 
-      ${numberField(
-        requirement.id,
-        "twoPack",
-        "2-pack containers in stock",
-        `Minimum: ${requirement.twoPackMinimum}`
-      )}
+          ${numberField(
+            requirement.id,
+            "twoPack",
+            "2-pack containers in stock",
+            `Minimum: ${requirement.twoPackMinimum}`
+          )}
 
-    </div>
-  `;
+        </div>
+      `;
 
     case "yogurt":
       return `
@@ -522,38 +509,22 @@ function buildInventoryFields(requirement) {
 
           ${numberField(
             requirement.id,
-            "quantity",
-            "Qualifying containers",
-            `Minimum: ${requirement.minimum}`
+            "wholeFat",
+            "Whole-fat containers",
+            `Minimum: ${requirement.wholeFatMinimum}`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "lowFat",
+            "Low-fat containers",
+            `Minimum: ${requirement.lowFatMinimum}`
           )}
 
         </div>
       `;
-
 
     case "either-size":
-      return `
-        <div class="inventory-grid">
-
-          ${numberField(
-            requirement.id,
-            "small",
-            "Smaller-size containers",
-            "Enter current stock"
-          )}
-
-          ${numberField(
-            requirement.id,
-            "large",
-            "Larger-size containers",
-            "Enter current stock"
-          )}
-
-        </div>
-      `;
-
-
-    case "cereal":
       return `
         <div class="inventory-grid">
 
@@ -566,14 +537,48 @@ function buildInventoryFields(requirement) {
 
           ${numberField(
             requirement.id,
-            "ounces",
-            "Total ounces in stock",
-            `Minimum: ${requirement.minimum} oz`
+            "sizeOne",
+            requirement.options[0].size,
+            `Minimum if using this size: ${requirement.options[0].minimum}`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "sizeTwo",
+            requirement.options[1].size,
+            `Minimum if using this size: ${requirement.options[1].minimum}`
           )}
 
         </div>
       `;
 
+    case "cereal":
+      return `
+        <div class="inventory-grid">
+
+          ${numberField(
+            requirement.id,
+            "varieties",
+            "Total varieties",
+            `Minimum: ${requirement.varieties}`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "quantity",
+            "Boxes or bags",
+            `Minimum: ${requirement.minimum}`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "wholeGrain",
+            "Whole-grain varieties",
+            `Minimum: ${requirement.wholeGrainVarieties}`
+          )}
+
+        </div>
+      `;
 
     case "beans":
       return `
@@ -588,21 +593,20 @@ function buildInventoryFields(requirement) {
 
           ${numberField(
             requirement.id,
-            "cans",
-            "Cans in stock",
-            "Enter current stock"
+            "dried",
+            "Dried packages",
+            `Minimum if used alone: ${requirement.driedMinimum}`
           )}
 
           ${numberField(
             requirement.id,
-            "dry",
-            "Dry packages in stock",
-            "Enter current stock"
+            "canned",
+            "Cans",
+            `Minimum if used alone: ${requirement.cannedMinimum}`
           )}
 
         </div>
       `;
-
 
     case "whole-grain":
       return `
@@ -611,25 +615,66 @@ function buildInventoryFields(requirement) {
           ${numberField(
             requirement.id,
             "varieties",
-            "Varieties in stock",
+            "Total varieties",
             `Minimum: ${requirement.varieties}`
           )}
 
           ${numberField(
             requirement.id,
             "quantity",
-            "Qualifying items in stock",
+            "Total packages",
             `Minimum: ${requirement.minimum}`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "breadVarieties",
+            "Bread varieties",
+            `Minimum: ${requirement.breadVarieties}`
           )}
 
         </div>
       `;
 
+    case "milk-pg1":
+    case "milk-pg2":
+    case "milk-pg3": {
+      const typeMinimum =
+        requirement.type === "milk-pg1"
+          ? requirement.milkTypes.length
+          : (
+              requirement.statedTypeCount ??
+              requirement.varieties ??
+              requirement.milkTypes.length
+            );
 
-   case "milk-pg1":
-case "milk-pg2":
-case "milk-pg3":
-  return `Stock the required quantities of each qualifying milk type shown below.`;
+      return `
+        <div class="inventory-grid">
+
+          ${numberField(
+            requirement.id,
+            "quantity",
+            "Total qualifying gallons",
+            `Minimum: ${requirement.minimum}`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "milkTypes",
+            "Qualifying milk types in stock",
+            `Minimum: ${typeMinimum}`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "sizes",
+            "Container sizes in stock",
+            `Minimum: ${requirement.sizesRequired}`
+          )}
+
+        </div>
+      `;
+    }
 
     case "split-milk":
       return `
@@ -637,21 +682,27 @@ case "milk-pg3":
 
           ${numberField(
             requirement.id,
-            "whole",
-            "Whole milk",
-            "Enter current stock"
+            "varieties",
+            "Qualifying milk types",
+            `Minimum: ${requirement.varieties}`
           )}
 
           ${numberField(
             requirement.id,
-            "lowfat",
-            "Low-fat / fat-free milk",
-            "Enter current stock"
+            "whole",
+            "Whole milk gallons",
+            `Minimum: ${requirement.wholeMinimum}`
+          )}
+
+          ${numberField(
+            requirement.id,
+            "lowFat",
+            "Low-fat / fat-free gallons",
+            `Minimum: ${requirement.lowFatMinimum}`
           )}
 
         </div>
       `;
-
 
     case "produce-and":
       return `
@@ -660,41 +711,58 @@ case "milk-pg3":
           ${numberField(
             requirement.id,
             "varieties",
-            "Varieties in stock",
+            "Total varieties",
             `Minimum: ${requirement.varieties}`
           )}
 
           ${numberField(
             requirement.id,
-            "fresh",
+            "subcategories",
+            "Subcategories represented",
+            `Minimum: ${requirement.subcategories}`
+          )}
+
+          ${
+            requirement.freshVarieties !== undefined
+              ? numberField(
+                  requirement.id,
+                  "freshVarieties",
+                  "Fresh varieties",
+                  `Minimum: ${requirement.freshVarieties}`
+                )
+              : ""
+          }
+
+          ${numberField(
+            requirement.id,
+            "freshPounds",
             "Fresh pounds",
-            "Enter current stock"
+            `Minimum: ${requirement.freshPounds} lb`
           )}
 
           ${numberField(
             requirement.id,
-            "cans",
+            "canned",
             "Cans",
-            "Enter current stock"
+            `Additional option minimum: ${requirement.cannedMinimum}`
           )}
 
           ${numberField(
             requirement.id,
             "frozen",
             "Frozen bags",
-            "Enter current stock"
+            `Additional option minimum: ${requirement.frozenMinimum}`
           )}
 
           ${numberField(
             requirement.id,
-            "value",
+            "dollarValue",
             "Dollar value",
-            "Enter current stock"
+            `Additional option minimum: $${requirement.dollarMinimum}`
           )}
 
         </div>
       `;
-
 
     case "produce-or":
       return `
@@ -709,35 +777,34 @@ case "milk-pg3":
 
           ${numberField(
             requirement.id,
-            "fresh",
+            "freshPounds",
             "Fresh pounds",
-            "Enter current stock"
+            `Option minimum: ${requirement.freshPounds} lb`
           )}
 
           ${numberField(
             requirement.id,
-            "cans",
+            "canned",
             "Cans",
-            "Enter current stock"
+            `Option minimum: ${requirement.cannedMinimum}`
           )}
 
           ${numberField(
             requirement.id,
             "frozen",
             "Frozen bags",
-            "Enter current stock"
+            `Option minimum: ${requirement.frozenMinimum}`
           )}
 
           ${numberField(
             requirement.id,
-            "value",
+            "dollarValue",
             "Dollar value",
-            "Enter current stock"
+            `Option minimum: $${requirement.dollarMinimum}`
           )}
 
         </div>
       `;
-
 
     default:
       return `
@@ -755,45 +822,12 @@ case "milk-pg3":
   }
 }
 
-
-function buildMilkFields(requirement) {
-  return `
-    <div class="inventory-grid">
-
-      ${numberField(
-        requirement.id,
-        "whole",
-        "Whole milk",
-        "Enter current stock"
-      )}
-
-      ${numberField(
-        requirement.id,
-        "onePercent",
-        "1% milk",
-        "Enter current stock"
-      )}
-
-      ${numberField(
-        requirement.id,
-        "skim",
-        "Fat-free / skim milk",
-        "Enter current stock"
-      )}
-
-      ${numberField(
-        requirement.id,
-        "twoPercent",
-        "2% milk",
-        "Enter current stock"
-      )}
-
-    </div>
-  `;
-}
-
-
-function numberField(requirementId, field, label, helper) {
+function numberField(
+  requirementId,
+  field,
+  label,
+  helper
+) {
   return `
     <label class="inventory-field">
 
@@ -804,68 +838,144 @@ function numberField(requirementId, field, label, helper) {
       <input
         type="number"
         min="0"
-        step="any"
-        inputmode="decimal"
+        step="1"
+        inputmode="numeric"
         data-requirement="${requirementId}"
         data-field="${field}"
         placeholder="0"
       >
 
-      <small>
-        ${helper || ""}
-      </small>
+      ${
+        helper
+          ? `<small>${helper}</small>`
+          : ""
+      }
 
     </label>
   `;
 }
+/* =========================================================
+   ASSESSMENT EVENTS
+   ========================================================= */
+
+function initializeAssessmentEvents(requirements) {
+
+  const returnHomeButton =
+    document.getElementById("returnHomeButton");
+
+  const changePeerButton =
+    document.getElementById("changePeerButton");
+
+  const previousButton =
+    document.getElementById("previousCategoryButton");
+
+  const nextButton =
+    document.getElementById("nextCategoryButton");
+
+  const resultsButton =
+    document.getElementById("viewResultsButton");
+
+  const inputs = document.querySelectorAll(
+    'input[data-requirement]'
+  );
+
+  inputs.forEach((input) => {
+
+    input.addEventListener("input", () => {
+      saveCurrentCategoryValues(
+        requirements[currentCategoryIndex]
+      );
+
+      updateCurrentCategoryStatus(
+        requirements[currentCategoryIndex]
+      );
+
+      updateAssessmentSummary();
+      renderCategoryNavigation(requirements);
+    });
+
+    input.addEventListener("change", () => {
+      saveCurrentCategoryValues(
+        requirements[currentCategoryIndex]
+      );
+
+      updateCurrentCategoryStatus(
+        requirements[currentCategoryIndex]
+      );
+
+      updateAssessmentSummary();
+      renderCategoryNavigation(requirements);
+    });
+
+  });
+
+  if (previousButton) {
+    previousButton.addEventListener("click", () => {
+
+      saveCurrentCategoryValues(
+        requirements[currentCategoryIndex]
+      );
+
+      if (currentCategoryIndex > 0) {
+        currentCategoryIndex -= 1;
+        renderAssessment(selectedPeerGroup);
+      }
+
+    });
+  }
+
+  if (nextButton) {
+    nextButton.addEventListener("click", () => {
+
+      saveCurrentCategoryValues(
+        requirements[currentCategoryIndex]
+      );
+
+      if (
+        currentCategoryIndex <
+        requirements.length - 1
+      ) {
+        currentCategoryIndex += 1;
+        renderAssessment(selectedPeerGroup);
+      }
+
+    });
+  }
+
+  if (resultsButton) {
+    resultsButton.addEventListener("click", () => {
+
+      saveCurrentCategoryValues(
+        requirements[currentCategoryIndex]
+      );
+
+      renderResults();
+    });
+  }
+
+  if (changePeerButton) {
+    changePeerButton.addEventListener("click", () => {
+      window.location.reload();
+    });
+  }
+
+  if (returnHomeButton) {
+    returnHomeButton.addEventListener("click", () => {
+      window.location.reload();
+    });
+  }
+}
 
 
 /* =========================================================
-   SAVE / RESTORE INPUT
+   SAVE CURRENT CATEGORY
    ========================================================= */
 
-function attachCurrentInputListeners(requirement) {
+function saveCurrentCategoryValues(requirement) {
 
-  document
-    .querySelectorAll(
-      `[data-requirement="${requirement.id}"]`
-    )
-    .forEach(input => {
-
-      input.addEventListener("input", event => {
-
-        const field = event.target.dataset.field;
-
-        assessmentState[requirement.id].values[field] =
-          parseNumber(event.target.value);
-      });
-    });
-}
-
-
-function restoreCurrentValues(requirement) {
-  const values =
-    assessmentState[requirement.id]?.values || {};
-
-  document
-    .querySelectorAll(
-      `[data-requirement="${requirement.id}"]`
-    )
-    .forEach(input => {
-
-      const field = input.dataset.field;
-
-      if (
-        values[field] !== undefined &&
-        values[field] !== null
-      ) {
-        input.value = values[field];
-      }
-    });
-}
-
-
-function saveCurrentCategory(requirement) {
+  if (!requirement) {
+    return;
+  }
 
   const inputs = document.querySelectorAll(
     `[data-requirement="${requirement.id}"]`
@@ -873,40 +983,269 @@ function saveCurrentCategory(requirement) {
 
   const values = {};
 
-  inputs.forEach(input => {
-    values[input.dataset.field] =
-      parseNumber(input.value);
+  inputs.forEach((input) => {
+
+    const field = input.dataset.field;
+
+    if (!field) {
+      return;
+    }
+
+    if (input.type === "checkbox") {
+      values[field] = input.checked;
+    } else {
+      values[field] = input.value;
+    }
+
   });
 
-  const result =
-    evaluateRequirement(requirement, values);
+  const hasEntry = Object.values(values).some((value) => {
+    return (
+      value === true ||
+      (
+        value !== "" &&
+        value !== null &&
+        value !== undefined
+      )
+    );
+  });
+
+  let result = "not-checked";
+
+  if (hasEntry) {
+    result = evaluateRequirement(
+      requirement,
+      values
+    );
+  }
 
   assessmentState[requirement.id] = {
     values,
-    result,
-    complete: true
+    result
   };
 
-  renderCategoryNav();
-  updateAssessmentSummary();
+  trackEvent("category_checked", {
+    peer_group: selectedPeerGroup,
+    category: requirement.category,
+    requirement_id: requirement.id,
+    result
+  });
+}
 
-  const peerData =
-    STOCKING_REQUIREMENTS[selectedPeerGroup];
 
-  if (
-    currentCategoryIndex <
-    peerData.requirements.length - 1
-  ) {
-    currentCategoryIndex++;
-    renderCategoryNav();
-    renderCurrentCategory();
-    scrollToWorkspace();
+/* =========================================================
+   RESTORE CATEGORY VALUES
+   ========================================================= */
+
+function restoreCurrentCategoryValues(requirement) {
+
+  if (!requirement) {
+    return;
+  }
+
+  const stored =
+    assessmentState[requirement.id];
+
+  if (!stored?.values) {
+    return;
+  }
+
+  Object.entries(stored.values)
+    .forEach(([field, value]) => {
+
+      const input = document.querySelector(
+        `[data-requirement="${requirement.id}"][data-field="${field}"]`
+      );
+
+      if (!input) {
+        return;
+      }
+
+      if (input.type === "checkbox") {
+        input.checked = Boolean(value);
+      } else {
+        input.value = value;
+      }
+
+    });
+}
+
+
+/* =========================================================
+   CURRENT CATEGORY STATUS
+   ========================================================= */
+
+function updateCurrentCategoryStatus(requirement) {
+
+  if (!requirement) {
+    return;
+  }
+
+  const stored =
+    assessmentState[requirement.id];
+
+  const result =
+    stored?.result || "not-checked";
+
+  const status =
+    document.getElementById(
+      `status-${requirement.id}`
+    );
+
+  if (!status) {
+    return;
+  }
+
+  status.classList.remove(
+    "status-not-checked",
+    "status-success",
+    "status-attention"
+  );
+
+  if (result === "meets") {
+
+    status.classList.add(
+      "status-success"
+    );
+
+    status.innerHTML = `
+      <span class="status-symbol">✓</span>
+      <span>Meets Requirement</span>
+    `;
+
+  } else if (result === "attention") {
+
+    status.classList.add(
+      "status-attention"
+    );
+
+    status.innerHTML = `
+      <span class="status-symbol">!</span>
+      <span>Needs Attention</span>
+    `;
+
   } else {
-    renderCurrentCategory();
 
-    if (allCategoriesComplete()) {
-      showAssessmentResults();
+    status.classList.add(
+      "status-not-checked"
+    );
+
+    status.innerHTML = `
+      <span class="status-symbol">○</span>
+      <span>Not Yet Checked</span>
+    `;
+
+  }
+}
+
+
+/* =========================================================
+   ASSESSMENT SUMMARY
+   ========================================================= */
+
+function updateAssessmentSummary() {
+
+  if (!selectedPeerGroup) {
+    return;
+  }
+
+  const requirements =
+    STOCK_REQUIREMENTS[
+      selectedPeerGroup
+    ]?.requirements || [];
+
+  let meets = 0;
+  let attention = 0;
+  let notChecked = 0;
+
+  requirements.forEach((requirement) => {
+
+    const result =
+      assessmentState[
+        requirement.id
+      ]?.result || "not-checked";
+
+    if (result === "meets") {
+      meets += 1;
+    } else if (result === "attention") {
+      attention += 1;
+    } else {
+      notChecked += 1;
     }
+
+  });
+
+  const completed =
+    meets + attention;
+
+  const total =
+    requirements.length;
+
+  const percent =
+    total > 0
+      ? Math.round(
+          (completed / total) * 100
+        )
+      : 0;
+
+  const notCheckedCount =
+    document.getElementById(
+      "notCheckedCount"
+    );
+
+  const meetsCount =
+    document.getElementById(
+      "meetsCount"
+    );
+
+  const attentionCount =
+    document.getElementById(
+      "attentionCount"
+    );
+
+  const completedCount =
+    document.getElementById(
+      "completedCount"
+    );
+
+  const progressPercent =
+    document.getElementById(
+      "progressPercent"
+    );
+
+  const assessmentProgress =
+    document.getElementById(
+      "assessmentProgress"
+    );
+
+  if (notCheckedCount) {
+    notCheckedCount.textContent =
+      notChecked;
+  }
+
+  if (meetsCount) {
+    meetsCount.textContent =
+      meets;
+  }
+
+  if (attentionCount) {
+    attentionCount.textContent =
+      attention;
+  }
+
+  if (completedCount) {
+    completedCount.textContent =
+      `${completed} of ${total} checked`;
+  }
+
+  if (progressPercent) {
+    progressPercent.textContent =
+      `${percent}%`;
+  }
+
+  if (assessmentProgress) {
+    assessmentProgress.style.width =
+      `${percent}%`;
   }
 }
 
@@ -915,701 +1254,509 @@ function saveCurrentCategory(requirement) {
    REQUIREMENT EVALUATION
    ========================================================= */
 
-function evaluateRequirement(requirement, values) {
+function evaluateRequirement(
+  requirement,
+  values
+) {
 
-  const v = key => Number(values[key] || 0);
+  const v = (key) =>
+    Number(values[key] || 0);
 
   switch (requirement.type) {
+
+    /* -------------------------
+       STANDARD
+       ------------------------- */
 
     case "standard":
       return (
         (
-          requirement.varieties === undefined ||
-          v("varieties") >= requirement.varieties
+          requirement.varieties ===
+            undefined ||
+          v("varieties") >=
+            Number(
+              requirement.varieties || 0
+            )
         ) &&
-        v("quantity") >= requirement.minimum
+        v("quantity") >=
+          Number(
+            requirement.minimum || 0
+          )
       )
         ? "meets"
         : "attention";
 
 
+    /* -------------------------
+       FORMULA
+       ------------------------- */
+
     case "formula":
     case "formula-request":
-      return v("quantity") >= requirement.minimum
+      return (
+        v("quantity") >=
+        Number(
+          requirement.minimum || 0
+        )
+      )
         ? "meets"
         : "attention";
 
 
-  case "infant-produce": {
-  const varietiesOK =
-    v("varieties") >= Number(requirement.varieties || 0);
+    /* -------------------------
+       INFANT FRUITS /
+       INFANT VEGETABLES
+       ------------------------- */
 
-  const singleOK =
-    v("single") >= Number(requirement.singleMinimum || 0);
+    case "infant-produce": {
 
-  const twoPackOK =
-    v("twoPack") >= Number(requirement.twoPackMinimum || 0);
+      const varietiesOK =
+        v("varieties") >=
+        Number(
+          requirement.varieties || 0
+        );
 
-  return varietiesOK && (singleOK || twoPackOK)
-    ? "meets"
-    : "attention";
-}
+      const singleOK =
+        v("single") >=
+        Number(
+          requirement.singleMinimum || 0
+        );
 
+      const twoPackOK =
+        v("twoPack") >=
+        Number(
+          requirement.twoPackMinimum || 0
+        );
 
-case "yogurt":
-case "whole-grain":
-  return (
-    v("varieties") >=
-      Number(requirement.varieties || 0) &&
-    (
-      requirement.minimum === undefined ||
-      v("quantity") >=
-        Number(requirement.minimum || 0)
-    )
-  )
-    ? "meets"
-    : "attention";
-
-
-    case "either-size": {
-      const total =
-        v("small") + v("large");
-
-      return total >=
-        Number(requirement.minimum || 0)
-          ? "meets"
-          : "attention";
+      return (
+        varietiesOK &&
+        (
+          singleOK ||
+          twoPackOK
+        )
+      )
+        ? "meets"
+        : "attention";
     }
 
+
+    /* -------------------------
+       YOGURT
+       PG 1–2
+       ------------------------- */
+
+    case "yogurt":
+      return (
+        v("varieties") >=
+          Number(
+            requirement.varieties || 0
+          ) &&
+
+        v("wholeFat") >=
+          Number(
+            requirement.wholeFatMinimum || 0
+          ) &&
+
+        v("lowFat") >=
+          Number(
+            requirement.lowFatMinimum || 0
+          )
+      )
+        ? "meets"
+        : "attention";
+
+
+    /* -------------------------
+       CHEESE
+       ------------------------- */
+
+    case "either-size": {
+
+      const varietiesOK =
+        v("varieties") >=
+        Number(
+          requirement.varieties || 0
+        );
+
+      const firstMinimum =
+        Number(
+          requirement.options?.[0]
+            ?.minimum || 0
+        );
+
+      const secondMinimum =
+        Number(
+          requirement.options?.[1]
+            ?.minimum || 0
+        );
+
+      /*
+        This allows equivalent mixed stock.
+
+        Example:
+        If the requirement is either
+        4 smaller packages OR
+        2 larger packages,
+
+        then:
+        2 smaller + 1 larger
+        equals one complete minimum.
+      */
+
+      const firstEquivalent =
+        firstMinimum > 0
+          ? (
+              v("sizeOne") /
+              firstMinimum
+            )
+          : 0;
+
+      const secondEquivalent =
+        secondMinimum > 0
+          ? (
+              v("sizeTwo") /
+              secondMinimum
+            )
+          : 0;
+
+      const quantityOK =
+        (
+          firstEquivalent +
+          secondEquivalent
+        ) >= 1;
+
+      return (
+        varietiesOK &&
+        quantityOK
+      )
+        ? "meets"
+        : "attention";
+    }
+
+
+    /* -------------------------
+       BREAKFAST CEREAL
+       ------------------------- */
 
     case "cereal":
       return (
         v("varieties") >=
-          Number(requirement.varieties || 0) &&
-        v("ounces") >=
-          Number(requirement.minimum || 0)
+          Number(
+            requirement.varieties || 0
+          ) &&
+
+        v("quantity") >=
+          Number(
+            requirement.minimum || 0
+          ) &&
+
+        v("wholeGrain") >=
+          Number(
+            requirement
+              .wholeGrainVarieties || 0
+          )
       )
         ? "meets"
         : "attention";
 
 
+    /* -------------------------
+       DRIED / CANNED BEANS
+       ------------------------- */
+
     case "beans": {
+
       const varietiesOK =
         v("varieties") >=
-        Number(requirement.varieties || 0);
+        Number(
+          requirement.varieties || 0
+        );
 
-      const quantity =
-        v("cans") + v("dry");
+      const driedMinimum =
+        Number(
+          requirement.driedMinimum || 0
+        );
+
+      const cannedMinimum =
+        Number(
+          requirement.cannedMinimum || 0
+        );
+
+      /*
+        Like cheese, the two stock
+        formats are treated as equivalent
+        portions of the minimum.
+      */
+
+      const driedEquivalent =
+        driedMinimum > 0
+          ? (
+              v("dried") /
+              driedMinimum
+            )
+          : 0;
+
+      const cannedEquivalent =
+        cannedMinimum > 0
+          ? (
+              v("canned") /
+              cannedMinimum
+            )
+          : 0;
 
       const quantityOK =
-        quantity >=
-        Number(requirement.minimum || 0);
+        (
+          driedEquivalent +
+          cannedEquivalent
+        ) >= 1;
 
-      return varietiesOK && quantityOK
+      return (
+        varietiesOK &&
+        quantityOK
+      )
         ? "meets"
         : "attention";
     }
 
+
+    /* -------------------------
+       WHOLE GRAINS
+       PG 1–3
+       ------------------------- */
+
+    case "whole-grain":
+      return (
+        v("varieties") >=
+          Number(
+            requirement.varieties || 0
+          ) &&
+
+        v("quantity") >=
+          Number(
+            requirement.minimum || 0
+          ) &&
+
+        v("breadVarieties") >=
+          Number(
+            requirement.breadVarieties || 0
+          )
+      )
+        ? "meets"
+        : "attention";
+
+
+    /* -------------------------
+       MILK
+       PEER GROUPS 1–3
+       ------------------------- */
 
     case "milk-pg1":
     case "milk-pg2":
     case "milk-pg3": {
-      const total =
-        v("whole") +
-        v("onePercent") +
-        v("skim") +
-        v("twoPercent");
 
-      return total >=
-        Number(requirement.minimum || 0)
-          ? "meets"
-          : "attention";
+      /*
+        PG1 explicitly lists five
+        required milk types.
+
+        PG2 and PG3 contain a discrepancy
+        in the requirements data between
+        the stated type count and the
+        number of types listed.
+
+        We therefore use statedTypeCount
+        for PG2/PG3 rather than silently
+        increasing their requirement.
+      */
+
+      const typeMinimum =
+        requirement.type ===
+          "milk-pg1"
+          ? requirement.milkTypes.length
+          : (
+              requirement.statedTypeCount ??
+              requirement.varieties ??
+              requirement.milkTypes.length
+            );
+
+      const quantityOK =
+        v("quantity") >=
+        Number(
+          requirement.minimum || 0
+        );
+
+      const typesOK =
+        v("milkTypes") >=
+        Number(
+          typeMinimum || 0
+        );
+
+      const sizesOK =
+        v("sizes") >=
+        Number(
+          requirement.sizesRequired || 0
+        );
+
+      return (
+        quantityOK &&
+        typesOK &&
+        sizesOK
+      )
+        ? "meets"
+        : "attention";
     }
 
 
-    case "split-milk": {
-      const total =
-        v("whole") + v("lowfat");
+    /* -------------------------
+       MILK
+       PEER GROUPS 4–6
+       ------------------------- */
 
-      return total >=
-        Number(requirement.minimum || 0)
-          ? "meets"
-          : "attention";
-    }
+    case "split-milk":
+      return (
+        v("varieties") >=
+          Number(
+            requirement.varieties || 0
+          ) &&
 
+        v("whole") >=
+          Number(
+            requirement.wholeMinimum || 0
+          ) &&
+
+        v("lowFat") >=
+          Number(
+            requirement.lowFatMinimum || 0
+          )
+      )
+        ? "meets"
+        : "attention";
+
+
+    /* -------------------------
+       FRUITS / VEGETABLES
+       PEER GROUPS 1–4
+       ------------------------- */
 
     case "produce-and": {
+
       const varietiesOK =
         v("varieties") >=
-        Number(requirement.varieties || 0);
-
-      const produceOK =
-        evaluateProduceQuantity(
-          requirement,
-          values,
-          true
+        Number(
+          requirement.varieties || 0
         );
 
-      return varietiesOK && produceOK
+      const subcategoriesOK =
+        v("subcategories") >=
+        Number(
+          requirement.subcategories || 0
+        );
+
+      const freshPoundsOK =
+        v("freshPounds") >=
+        Number(
+          requirement.freshPounds || 0
+        );
+
+      const freshVarietiesOK =
+        requirement.freshVarieties ===
+          undefined ||
+        v("freshVarieties") >=
+          Number(
+            requirement.freshVarieties || 0
+          );
+
+      /*
+        These peer groups require the
+        fresh minimum PLUS one additional
+        canned, frozen, or dollar-value
+        minimum.
+      */
+
+      const additionalStockOK =
+        v("canned") >=
+          Number(
+            requirement.cannedMinimum || 0
+          ) ||
+
+        v("frozen") >=
+          Number(
+            requirement.frozenMinimum || 0
+          ) ||
+
+        v("dollarValue") >=
+          Number(
+            requirement.dollarMinimum || 0
+          );
+
+      return (
+        varietiesOK &&
+        subcategoriesOK &&
+        freshVarietiesOK &&
+        freshPoundsOK &&
+        additionalStockOK
+      )
         ? "meets"
         : "attention";
     }
 
+
+    /* -------------------------
+       FRUITS / VEGETABLES
+       PEER GROUPS 5–6
+       ------------------------- */
 
     case "produce-or": {
+
       const varietiesOK =
         v("varieties") >=
-        Number(requirement.varieties || 0);
-
-      const produceOK =
-        evaluateProduceQuantity(
-          requirement,
-          values,
-          false
+        Number(
+          requirement.varieties || 0
         );
 
-      return varietiesOK && produceOK
+      const quantityOK =
+        v("freshPounds") >=
+          Number(
+            requirement.freshPounds || 0
+          ) ||
+
+        v("canned") >=
+          Number(
+            requirement.cannedMinimum || 0
+          ) ||
+
+        v("frozen") >=
+          Number(
+            requirement.frozenMinimum || 0
+          ) ||
+
+        v("dollarValue") >=
+          Number(
+            requirement.dollarMinimum || 0
+          );
+
+      return (
+        varietiesOK &&
+        quantityOK
+      )
         ? "meets"
         : "attention";
     }
 
 
+    /* -------------------------
+       FALLBACK
+       ------------------------- */
+
     default:
-      return v("quantity") >=
-        Number(requirement.minimum || 0)
-          ? "meets"
-          : "attention";
-  }
-}
-
-
-function evaluateProduceQuantity(
-  requirement,
-  values,
-  useAnd
-) {
-  const checks = [];
-
-  const freshMinimum =
-    getFirstNumber(
-      requirement,
-      ["fresh", "freshMinimum", "pounds"]
-    );
-
-  const cansMinimum =
-    getFirstNumber(
-      requirement,
-      ["cans", "canMinimum"]
-    );
-
-  const frozenMinimum =
-    getFirstNumber(
-      requirement,
-      ["frozen", "frozenMinimum", "bags"]
-    );
-
-  const valueMinimum =
-    getFirstNumber(
-      requirement,
-      ["value", "dollarValue", "minimumValue"]
-    );
-
-  if (freshMinimum !== null) {
-    checks.push(
-      Number(values.fresh || 0) >= freshMinimum
-    );
-  }
-
-  if (cansMinimum !== null) {
-    checks.push(
-      Number(values.cans || 0) >= cansMinimum
-    );
-  }
-
-  if (frozenMinimum !== null) {
-    checks.push(
-      Number(values.frozen || 0) >= frozenMinimum
-    );
-  }
-
-  if (valueMinimum !== null) {
-    checks.push(
-      Number(values.value || 0) >= valueMinimum
-    );
-  }
-
-  if (!checks.length) {
-    return (
-      Number(values.fresh || 0) > 0 ||
-      Number(values.cans || 0) > 0 ||
-      Number(values.frozen || 0) > 0 ||
-      Number(values.value || 0) > 0
-    );
-  }
-
-  return useAnd
-    ? checks.every(Boolean)
-    : checks.some(Boolean);
-}
-
-
-function getFirstNumber(object, keys) {
-
-  for (const key of keys) {
-
-    if (
-      object[key] !== undefined &&
-      object[key] !== null &&
-      object[key] !== ""
-    ) {
-      const number = Number(object[key]);
-
-      if (!Number.isNaN(number)) {
-        return number;
-      }
-    }
-  }
-
-  return null;
-}
-
-
-/* =========================================================
-   SUMMARY
-   ========================================================= */
-
-function updateAssessmentSummary() {
-
-  const peerData =
-    STOCKING_REQUIREMENTS[selectedPeerGroup];
-
-  const states =
-    peerData.requirements.map(
-      requirement =>
-        assessmentState[requirement.id]
-    );
-
-  const completed =
-    states.filter(
-      state => state.complete
-    ).length;
-
-  const meets =
-    states.filter(
-      state =>
-        state.complete &&
-        state.result === "meets"
-    ).length;
-
-  const attention =
-    states.filter(
-      state =>
-        state.complete &&
-        state.result === "attention"
-    ).length;
-
-  const total = states.length;
-
-  const percent =
-    total
-      ? Math.round(
-          (completed / total) * 100
+      return (
+        v("quantity") >=
+        Number(
+          requirement.minimum || 0
         )
-      : 0;
-
-  const setText =
-    (id, value) => {
-      const element =
-        document.getElementById(id);
-
-      if (element) {
-        element.textContent = value;
-      }
-    };
-
-  setText(
-    "progressText",
-    `${completed} of ${total} categories completed`
-  );
-
-  setText(
-    "notCheckedCount",
-    total - completed
-  );
-
-  setText(
-    "meetsCount",
-    meets
-  );
-
-  setText(
-    "attentionCount",
-    attention
-  );
-
-  const progress =
-    document.getElementById(
-      "assessmentProgress"
-    );
-
-  if (progress) {
-    progress.style.width =
-      `${percent}%`;
+      )
+        ? "meets"
+        : "attention";
   }
-
-  const finish =
-    document.getElementById(
-      "finishAssessment"
-    );
-
-  if (finish) {
-    finish.disabled =
-      completed !== total;
-  }
-}
-
-
-function allCategoriesComplete() {
-
-  const peerData =
-    STOCKING_REQUIREMENTS[selectedPeerGroup];
-
-  return peerData.requirements.every(
-    requirement =>
-      assessmentState[requirement.id].complete
-  );
-}
-
-
-function scrollToWorkspace() {
-
-  document
-    .querySelector(".category-nav-wrap")
-    ?.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
-}
-
-
-/* =========================================================
-   RESULTS
-   ========================================================= */
-
-function showAssessmentResults() {
-
-  if (!allCategoriesComplete()) {
-    return;
-  }
-
-  const peerData =
-    STOCKING_REQUIREMENTS[selectedPeerGroup];
-
-  const results =
-    peerData.requirements.map(
-      requirement => ({
-        requirement,
-        result:
-          assessmentState[
-            requirement.id
-          ].result
-      })
-    );
-
-  renderResultsPage(results);
-}
-
-
-function renderResultsPage(results) {
-
-  const peerData =
-    STOCKING_REQUIREMENTS[selectedPeerGroup];
-
-  const meets =
-    results.filter(
-      item => item.result === "meets"
-    );
-
-  const attention =
-    results.filter(
-      item => item.result === "attention"
-    );
-
-  const total =
-    results.length;
-
-  const allMeet =
-    attention.length === 0;
-
-  document.querySelector("main").innerHTML = `
-    <section class="results-page">
-
-      <div class="assessment-topbar">
-
-        <div class="assessment-topbar-inner">
-
-          <div class="assessment-brand">
-            <img
-              src="wic-color.jpg"
-              alt="WIC"
-            >
-
-            <strong>
-              WV WIC StockCheck
-            </strong>
-          </div>
-
-          <button
-            class="back-button"
-            id="resultsBackHome"
-            type="button"
-          >
-            ← Start New StockCheck
-          </button>
-
-          <div class="assessment-peer-badge">
-            Peer Group ${selectedPeerGroup}
-          </div>
-
-        </div>
-
-      </div>
-
-      <div class="results-container">
-
-        <section class="results-hero ${
-          allMeet
-            ? "success"
-            : "attention"
-        }">
-
-          <img
-            src="wic-color.jpg"
-            class="results-logo"
-            alt="WIC"
-          >
-
-          <div>
-
-            <span class="section-kicker">
-              STOCKCHECK RESULTS
-            </span>
-
-            <h1>
-              ${
-                allMeet
-                  ? "All categories meet the minimum requirements"
-                  : `${attention.length} ${pluralize(
-                      "category",
-                      attention.length
-                    )} need attention`
-              }
-            </h1>
-
-            <p>
-              ${
-                allMeet
-                  ? `Based on the inventory entered, all ${total} categories for Peer Group ${selectedPeerGroup} meet the displayed minimum stocking requirements.`
-                  : `${meets.length} of ${total} categories meet the displayed minimum stocking requirements. Review the items below that need attention.`
-              }
-            </p>
-
-          </div>
-
-        </section>
-
-
-        <section class="results-stat-grid">
-
-          <div class="results-stat-card">
-            <span>Total Categories</span>
-            <strong>${total}</strong>
-          </div>
-
-          <div class="results-stat-card">
-            <span>Meets Requirement</span>
-            <strong>${meets.length}</strong>
-          </div>
-
-          <div class="results-stat-card">
-            <span>Needs Attention</span>
-            <strong>${attention.length}</strong>
-          </div>
-
-        </section>
-
-
-        ${
-          attention.length
-            ? `
-              <section class="results-section">
-
-                <div class="results-section-heading">
-
-                  <div>
-                    <span class="section-kicker">
-                      REVIEW THESE ITEMS
-                    </span>
-
-                    <h2>
-                      Needs Attention
-                    </h2>
-                  </div>
-
-                </div>
-
-                <div class="results-list">
-                  ${buildResultsList(
-                    attention,
-                    false
-                  )}
-                </div>
-
-              </section>
-            `
-            : ""
-        }
-
-
-        <section class="results-section">
-
-          <div class="results-section-heading">
-
-            <div>
-              <span class="section-kicker">
-                REQUIREMENTS MET
-              </span>
-
-              <h2>
-                Meets Requirement
-              </h2>
-            </div>
-
-          </div>
-
-          <div class="results-list">
-
-            ${
-              meets.length
-                ? buildResultsList(
-                    meets,
-                    true
-                  )
-                : `
-                  <div class="results-disclaimer">
-                    No categories currently meet
-                    the displayed minimum requirements.
-                  </div>
-                `
-            }
-
-          </div>
-
-        </section>
-
-
-        <section class="results-disclaimer">
-
-          <strong>
-            About these results
-          </strong>
-
-          <br>
-
-          StockCheck compares the inventory entered with
-          the minimum stocking requirements represented
-          in this tool. It is intended to support stocking
-          review and does not replace official WV WIC
-          guidance or vendor requirements.
-
-        </section>
-
-
-        <div class="results-actions">
-
-          <button
-            class="results-primary-button"
-            id="startNewAssessment"
-            type="button"
-          >
-            Start New StockCheck
-          </button>
-
-        </div>
-
-      </div>
-
-    </section>
-  `;
-
-  document
-    .getElementById("resultsBackHome")
-    .addEventListener(
-      "click",
-      returnToHome
-    );
-
-  document
-    .getElementById("startNewAssessment")
-    .addEventListener(
-      "click",
-      returnToHome
-    );
-
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
-}
-
-
-function buildResultsList(items, isSuccess) {
-
-  return items
-    .map(({ requirement }) => `
-      <article class="result-item">
-
-        <div class="
-          result-item-icon
-          ${
-            isSuccess
-              ? "result-icon-success"
-              : "result-icon-attention"
-          }
-        ">
-          ${isSuccess ? "✓" : "!"}
-        </div>
-
-        <div>
-
-          <h3>
-            ${requirement.category}
-          </h3>
-
-          <p>
-            ${getRequirementSummary(requirement)}
-          </p>
-
-        </div>
-
-        <span class="
-          result-item-status
-          ${
-            isSuccess
-              ? "result-status-success"
-              : "result-status-attention"
-          }
-        ">
-          ${
-            isSuccess
-              ? "Meets Requirement"
-              : "Needs Attention"
-          }
-        </span>
-
-      </article>
-    `)
-    .join("");
 }
 
 
@@ -1633,139 +1780,237 @@ function getRequirementSummary(requirement) {
 
 
     case "formula":
-      return `${requirement.minimum} ${requirement.unit} across the required contract formulas. One representative container of each required formula must be available.`;
+      return `
+        ${requirement.minimum} ${requirement.unit}
+        across the required contract formulas.
+        One representative container of each required
+        formula must be available.
+      `;
 
 
     case "formula-request":
-      return `${requirement.minimum} ${requirement.unit} across the required contract formulas.`;
+      return `
+        ${requirement.minimum} ${requirement.unit}
+        across the required contract formulas.
+      `;
 
 
- case "infant-produce":
-  return `At least ${requirement.varieties} ${pluralize(
-    "variety",
-    requirement.varieties
-  )} and either ${requirement.singleMinimum} single containers OR ${requirement.twoPackMinimum} 2-packs.`;  
+    case "infant-produce":
+      return `
+        At least ${requirement.varieties}
+        ${pluralize(
+          "variety",
+          requirement.varieties
+        )} and either
+        ${requirement.singleMinimum}
+        single containers OR
+        ${requirement.twoPackMinimum}
+        2-packs.
+      `;
 
 
     case "yogurt":
-      return `At least ${requirement.varieties} ${pluralize(
-        "variety",
-        requirement.varieties
-      )} and ${requirement.minimum} ${requirement.unit}.`;
+      return `
+        At least ${requirement.varieties}
+        ${pluralize(
+          "variety",
+          requirement.varieties
+        )},
+        ${requirement.wholeFatMinimum}
+        whole-fat containers AND
+        ${requirement.lowFatMinimum}
+        low-fat containers.
+      `;
 
 
     case "either-size":
-      return `${requirement.minimum} qualifying containers using either approved size option.`;
+      return `
+        At least ${requirement.varieties}
+        ${pluralize(
+          "variety",
+          requirement.varieties
+        )} and either
+        ${requirement.options[0].minimum}
+        ${requirement.options[0].size}
+        OR
+        ${requirement.options[1].minimum}
+        ${requirement.options[1].size}.
+      `;
 
 
     case "cereal":
-      return `At least ${requirement.varieties} ${pluralize(
-        "variety",
-        requirement.varieties
-      )} and ${requirement.minimum} ounces total.`;
+      return `
+        At least ${requirement.varieties}
+        ${pluralize(
+          "variety",
+          requirement.varieties
+        )} and
+        ${requirement.minimum}
+        ${requirement.unit}.
+        At least
+        ${requirement.wholeGrainVarieties}
+        ${pluralize(
+          "variety",
+          requirement.wholeGrainVarieties
+        )}
+        must be whole grain.
+      `;
 
 
     case "beans":
-      return `At least ${requirement.varieties} ${pluralize(
-        "variety",
-        requirement.varieties
-      )} and ${requirement.minimum} qualifying packages or cans.`;
+      return `
+        At least ${requirement.varieties}
+        ${pluralize(
+          "variety",
+          requirement.varieties
+        )} and either
+        ${requirement.driedMinimum}
+        ${requirement.driedSize}
+        of dried beans OR
+        ${requirement.cannedMinimum}
+        ${requirement.cannedSize}.
+      `;
 
 
     case "whole-grain":
-      return `At least ${requirement.varieties} ${pluralize(
-        "variety",
-        requirement.varieties
-      )} and ${requirement.minimum} qualifying items.`;
+      return `
+        At least ${requirement.varieties}
+        ${pluralize(
+          "variety",
+          requirement.varieties
+        )} and
+        ${requirement.minimum}
+        ${requirement.unit}.
+        At least
+        ${requirement.breadVarieties}
+        ${pluralize(
+          "variety",
+          requirement.breadVarieties
+        )}
+        must be bread.
+      `;
 
 
     case "milk-pg1":
+      return `
+        ${requirement.minimum}
+        ${requirement.unit};
+        all ${requirement.milkTypes.length}
+        listed milk types must be represented,
+        with at least
+        ${requirement.sizesRequired}
+        container sizes.
+      `;
+
+
     case "milk-pg2":
-    case "milk-pg3":
-      return `${requirement.minimum} qualifying milk containers across the required milk types.`;
+    case "milk-pg3": {
 
+      const typeMinimum =
+        requirement.statedTypeCount ??
+        requirement.varieties ??
+        requirement.milkTypes.length;
 
-    case "split-milk":
-      return `${requirement.minimum} qualifying milk containers across the required milk types.`;
-
-
-    case "produce-and":
-    case "produce-or": {
-
-      const varieties =
-        requirement.varieties !== undefined
-          ? `At least ${requirement.varieties} ${pluralize(
-              "variety",
-              requirement.varieties
-            )}`
-          : "Meet the required variety minimum";
-
-      const options = [];
-
-      const fresh =
-        getFirstNumber(
-          requirement,
-          ["fresh", "freshMinimum", "pounds"]
-        );
-
-      const cans =
-        getFirstNumber(
-          requirement,
-          ["cans", "canMinimum"]
-        );
-
-      const frozen =
-        getFirstNumber(
-          requirement,
-          ["frozen", "frozenMinimum", "bags"]
-        );
-
-      const value =
-        getFirstNumber(
-          requirement,
-          ["value", "dollarValue", "minimumValue"]
-        );
-
-      if (fresh !== null) {
-        options.push(
-          `${fresh} pounds fresh`
-        );
-      }
-
-      if (cans !== null) {
-        options.push(
-          `${cans} cans`
-        );
-      }
-
-      if (frozen !== null) {
-        options.push(
-          `${frozen} bags frozen`
-        );
-      }
-
-      if (value !== null) {
-        options.push(
-          `$${value} value`
-        );
-      }
-
-      if (!options.length) {
-        return `${varieties}.`;
-      }
-
-      return `${varieties} and ${
-        requirement.type === "produce-and"
-          ? options.join(", ")
-          : formatOrList(options)
-      }.`;
+      return `
+        ${requirement.minimum}
+        ${requirement.unit};
+        at least ${typeMinimum}
+        qualifying milk types,
+        with at least
+        ${requirement.sizesRequired}
+        container sizes.
+      `;
     }
 
 
+    case "split-milk":
+      return `
+        At least ${requirement.varieties}
+        approved milk types,
+        including
+        ${requirement.wholeMinimum}
+        ${pluralize(
+          "gallon",
+          requirement.wholeMinimum
+        )}
+        of whole milk AND
+        ${requirement.lowFatMinimum}
+        gallons of low-fat and/or
+        fat-free milk.
+      `;
+
+
+    case "produce-and": {
+
+      const freshVarietyText =
+        requirement.freshVarieties !==
+          undefined
+          ? `,
+            including at least
+            ${requirement.freshVarieties}
+            fresh ${pluralize(
+              "variety",
+              requirement.freshVarieties
+            )}`
+          : "";
+
+      return `
+        At least ${requirement.varieties}
+        total ${pluralize(
+          "variety",
+          requirement.varieties
+        )}
+        across at least
+        ${requirement.subcategories}
+        subcategories${freshVarietyText};
+        at least
+        ${requirement.freshPounds}
+        pounds fresh AND one additional
+        minimum:
+        ${requirement.cannedMinimum}
+        cans,
+        ${requirement.frozenMinimum}
+        frozen bags,
+        OR $${requirement.dollarMinimum}
+        value.
+      `;
+    }
+
+
+    case "produce-or":
+      return `
+        At least ${requirement.varieties}
+        ${pluralize(
+          "variety",
+          requirement.varieties
+        )}
+        and either
+        ${requirement.freshPounds}
+        pounds fresh,
+        ${requirement.cannedMinimum}
+        cans,
+        ${requirement.frozenMinimum}
+        frozen bags,
+        OR $${requirement.dollarMinimum}
+        value.
+      `;
+
+
     default:
-      return requirement.minimum !== undefined
-        ? `${requirement.minimum} ${requirement.unit || "qualifying items"}.`
-        : "Meet the minimum stocking requirement shown.";
+      return (
+        requirement.minimum !== undefined
+          ? `
+            ${requirement.minimum}
+            ${
+              requirement.unit ||
+              "qualifying items"
+            }.
+          `
+          : `
+            Meet the minimum stocking
+            requirement shown.
+          `
+      );
   }
 }
 
@@ -1774,45 +2019,845 @@ function getRequirementSummary(requirement) {
    HELPERS
    ========================================================= */
 
-function formatOrList(items) {
-
-  if (items.length === 1) {
-    return items[0];
-  }
-
-  if (items.length === 2) {
-    return `${items[0]} OR ${items[1]}`;
-  }
-
-  return `${
-    items.slice(0, -1).join(", ")
-  }, OR ${items[items.length - 1]}`;
-}
-
-
-function pluralize(word, amount) {
-  return Number(amount) === 1
+function pluralize(
+  word,
+  quantity
+) {
+  return Number(quantity) === 1
     ? word
     : `${word}s`;
 }
 
+function escapeHtml(value) {
 
-function parseNumber(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+/* =========================================================
+   RESULTS
+   ========================================================= */
 
-  const number =
-    parseFloat(value);
+function renderResults() {
 
-  return Number.isFinite(number)
-    ? number
-    : 0;
+  if (!selectedPeerGroup) {
+    return;
+  }
+
+  const peerData =
+    STOCK_REQUIREMENTS[selectedPeerGroup];
+
+  if (!peerData) {
+    return;
+  }
+
+  const requirements =
+    peerData.requirements;
+
+  /*
+    Make sure the category currently
+    on screen is saved before building
+    the results.
+  */
+
+  const currentRequirement =
+    requirements[currentCategoryIndex];
+
+  if (currentRequirement) {
+    saveCurrentCategoryValues(
+      currentRequirement
+    );
+  }
+
+  let meets = 0;
+  let attention = 0;
+  let notChecked = 0;
+
+  requirements.forEach(
+    (requirement) => {
+
+      const result =
+        assessmentState[
+          requirement.id
+        ]?.result || "not-checked";
+
+      if (result === "meets") {
+        meets += 1;
+      } else if (
+        result === "attention"
+      ) {
+        attention += 1;
+      } else {
+        notChecked += 1;
+      }
+
+    }
+  );
+
+  const completed =
+    meets + attention;
+
+  const total =
+    requirements.length;
+
+  const percent =
+    total > 0
+      ? Math.round(
+          (completed / total) * 100
+        )
+      : 0;
+
+  trackEvent(
+    "assessment_results_viewed",
+    {
+      peer_group:
+        selectedPeerGroup,
+
+      peer_group_name:
+        peerData.name,
+
+      total_categories:
+        total,
+
+      completed_categories:
+        completed,
+
+      meets_requirement:
+        meets,
+
+      needs_attention:
+        attention,
+
+      not_checked:
+        notChecked
+    }
+  );
+
+  document.body.innerHTML = `
+    <div class="assessment-shell results-shell">
+
+      <header class="assessment-topbar">
+
+        <div class="assessment-topbar-inner">
+
+          <button
+            type="button"
+            class="assessment-brand"
+            id="resultsHomeButton"
+            aria-label="Return to StockCheck home"
+          >
+
+            <img
+              src="wic-color.jpg"
+              alt="WIC"
+            >
+
+            <div>
+              <strong>WV WIC</strong>
+              <span>StockCheck</span>
+            </div>
+
+          </button>
+
+          <div class="assessment-peer-pill">
+
+            <span>
+              Peer Group
+              ${selectedPeerGroup}
+            </span>
+
+            <strong>
+              ${peerData.name}
+            </strong>
+
+          </div>
+
+        </div>
+
+      </header>
+
+
+      <main class="assessment-main results-main">
+
+        <section class="results-hero">
+
+          <span class="section-kicker">
+            ASSESSMENT SUMMARY
+          </span>
+
+          <h1>
+            Your StockCheck results
+          </h1>
+
+          <p>
+            Review each category below.
+            Categories marked
+            <strong>Needs Attention</strong>
+            may require additional stock
+            before your store meets the
+            minimum requirement shown.
+          </p>
+
+        </section>
+
+
+        <section class="results-overview-card">
+
+          <div class="results-overview-heading">
+
+            <div>
+
+              <span class="progress-label">
+                Assessment progress
+              </span>
+
+              <strong>
+                ${completed} of
+                ${total} checked
+              </strong>
+
+            </div>
+
+            <span>
+              ${percent}%
+            </span>
+
+          </div>
+
+
+          <div class="assessment-progress-track">
+
+            <div
+              class="assessment-progress-fill"
+              style="width: ${percent}%"
+            ></div>
+
+          </div>
+
+
+          <div class="assessment-status-summary">
+
+            <div
+              class="
+                summary-stat
+                summary-success
+              "
+            >
+
+              <span
+                class="summary-stat-number"
+              >
+                ${meets}
+              </span>
+
+              <span>
+                Meets requirement
+              </span>
+
+            </div>
+
+
+            <div
+              class="
+                summary-stat
+                summary-attention
+              "
+            >
+
+              <span
+                class="summary-stat-number"
+              >
+                ${attention}
+              </span>
+
+              <span>
+                Needs attention
+              </span>
+
+            </div>
+
+
+            <div
+              class="
+                summary-stat
+                summary-neutral
+              "
+            >
+
+              <span
+                class="summary-stat-number"
+              >
+                ${notChecked}
+              </span>
+
+              <span>
+                Not yet checked
+              </span>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        ${
+          notChecked > 0
+            ? `
+              <section class="results-notice">
+
+                <span>i</span>
+
+                <div>
+
+                  <strong>
+                    Your assessment
+                    is not complete.
+                  </strong>
+
+                  <p>
+                    ${notChecked}
+                    ${
+                      notChecked === 1
+                        ? "category has"
+                        : "categories have"
+                    }
+                    not yet been checked.
+                    You can return to the
+                    assessment to finish
+                    entering your inventory.
+                  </p>
+
+                </div>
+
+              </section>
+            `
+            : ""
+        }
+
+
+        <section class="results-list-section">
+
+          <div class="results-section-heading">
+
+            <div>
+
+              <span class="section-kicker">
+                CATEGORY RESULTS
+              </span>
+
+              <h2>
+                Review your inventory
+              </h2>
+
+            </div>
+
+          </div>
+
+
+          <div class="results-category-list">
+
+            ${requirements
+              .map(
+                (
+                  requirement,
+                  index
+                ) => {
+
+                  const stored =
+                    assessmentState[
+                      requirement.id
+                    ];
+
+                  const result =
+                    stored?.result ||
+                    "not-checked";
+
+                  let statusClass =
+                    "status-not-checked";
+
+                  let statusText =
+                    "Not Yet Checked";
+
+                  let statusSymbol =
+                    "○";
+
+                  if (
+                    result === "meets"
+                  ) {
+
+                    statusClass =
+                      "status-success";
+
+                    statusText =
+                      "Meets Requirement";
+
+                    statusSymbol =
+                      "✓";
+
+                  } else if (
+                    result ===
+                    "attention"
+                  ) {
+
+                    statusClass =
+                      "status-attention";
+
+                    statusText =
+                      "Needs Attention";
+
+                    statusSymbol =
+                      "!";
+
+                  }
+
+                  return `
+                    <article
+                      class="
+                        result-category-card
+                        ${statusClass}
+                      "
+                    >
+
+                      <div
+                        class="
+                          result-category-main
+                        "
+                      >
+
+                        <span
+                          class="
+                            result-category-number
+                          "
+                        >
+                          ${index + 1}
+                        </span>
+
+                        <div
+                          class="
+                            result-category-copy
+                          "
+                        >
+
+                          <h3>
+                            ${
+                              requirement
+                                .category
+                            }
+                          </h3>
+
+                          <p>
+                            ${getRequirementSummary(
+                              requirement
+                            )}
+                          </p>
+
+                        </div>
+
+                      </div>
+
+
+                      <div
+                        class="
+                          requirement-status
+                          ${statusClass}
+                        "
+                      >
+
+                        <span
+                          class="
+                            status-symbol
+                          "
+                        >
+                          ${statusSymbol}
+                        </span>
+
+                        <span>
+                          ${statusText}
+                        </span>
+
+                      </div>
+
+                    </article>
+                  `;
+                }
+              )
+              .join("")}
+
+          </div>
+
+        </section>
+
+
+        <section class="results-actions">
+
+          <button
+            type="button"
+            class="secondary-button"
+            id="backToAssessmentButton"
+          >
+            ← Back to Assessment
+          </button>
+
+
+          <button
+            type="button"
+            class="primary-button"
+            id="startOverButton"
+          >
+            Start New StockCheck
+          </button>
+
+        </section>
+
+
+        <section class="results-disclaimer">
+
+          <img
+            src="wic-color.jpg"
+            alt=""
+          >
+
+          <div>
+
+            <strong>
+              Important
+            </strong>
+
+            <p>
+              StockCheck is intended to
+              assist West Virginia WIC
+              vendors in reviewing minimum
+              stocking requirements.
+              Results are based on the
+              inventory information entered
+              into this tool and are not an
+              official vendor compliance
+              determination. Refer to current
+              West Virginia WIC vendor
+              guidance for official program
+              requirements.
+            </p>
+
+          </div>
+
+        </section>
+
+      </main>
+
+    </div>
+  `;
+
+
+  const resultsHomeButton =
+    document.getElementById(
+      "resultsHomeButton"
+    );
+
+  const backToAssessmentButton =
+    document.getElementById(
+      "backToAssessmentButton"
+    );
+
+  const startOverButton =
+    document.getElementById(
+      "startOverButton"
+    );
+
+
+  if (resultsHomeButton) {
+
+    resultsHomeButton.addEventListener(
+      "click",
+      () => {
+        window.location.reload();
+      }
+    );
+
+  }
+
+
+  if (backToAssessmentButton) {
+
+    backToAssessmentButton
+      .addEventListener(
+        "click",
+        () => {
+          renderAssessment(
+            selectedPeerGroup
+          );
+        }
+      );
+
+  }
+
+
+  if (startOverButton) {
+
+    startOverButton.addEventListener(
+      "click",
+      () => {
+
+        trackEvent(
+          "assessment_restarted",
+          {
+            peer_group:
+              selectedPeerGroup
+          }
+        );
+
+        selectedPeerGroup = null;
+        currentCategoryIndex = 0;
+        assessmentState = {};
+
+        window.location.reload();
+      }
+    );
+
+  }
 }
 
 
 /* =========================================================
-   RETURN HOME
+   ANALYTICS
    ========================================================= */
 
-function returnToHome() {
+/*
+  StockCheck can send anonymous usage
+  information to a Google Apps Script
+  endpoint.
 
-  window.location.reload();
+  No vendor name, vendor number,
+  participant information, email
+  address, or precise location is
+  collected by this code.
+*/
+
+const ANALYTICS_ENDPOINT =
+  typeof STOCKCHECK_ANALYTICS_ENDPOINT !==
+    "undefined"
+    ? STOCKCHECK_ANALYTICS_ENDPOINT
+    : "";
+
+
+/* =========================================================
+   PAGE VIEW
+   ========================================================= */
+
+function trackPageView() {
+
+  trackEvent(
+    "page_view",
+    {
+      page:
+        window.location.pathname,
+
+      app_version:
+        APP_VERSION
+    }
+  );
+
 }
+
+
+/* =========================================================
+   TRACK EVENT
+   ========================================================= */
+
+function trackEvent(
+  eventName,
+  eventData = {}
+) {
+
+  if (!eventName) {
+    return;
+  }
+
+  const payload = {
+
+    event:
+      eventName,
+
+    timestamp:
+      new Date().toISOString(),
+
+    app_version:
+      APP_VERSION,
+
+    page:
+      window.location.pathname,
+
+    ...eventData
+
+  };
+
+
+  /*
+    Keep a console record during
+    development. This is useful if the
+    analytics endpoint is unavailable.
+  */
+
+  console.log(
+    "StockCheck analytics:",
+    payload
+  );
+
+
+  if (!ANALYTICS_ENDPOINT) {
+    return;
+  }
+
+
+  /*
+    Google Apps Script web apps can
+    reject requests that trigger a CORS
+    preflight.
+
+    text/plain allows the POST to remain
+    a simple request while still sending
+    JSON-formatted data.
+  */
+
+  try {
+
+    fetch(
+      ANALYTICS_ENDPOINT,
+      {
+
+        method: "POST",
+
+        mode: "no-cors",
+
+        headers: {
+          "Content-Type":
+            "text/plain;charset=utf-8"
+        },
+
+        body:
+          JSON.stringify(payload),
+
+        keepalive: true
+
+      }
+    ).catch(
+      (error) => {
+
+        console.warn(
+          "StockCheck analytics request failed:",
+          error
+        );
+
+      }
+    );
+
+  } catch (error) {
+
+    console.warn(
+      "StockCheck analytics unavailable:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   OPTIONAL ANALYTICS HELPER
+   ========================================================= */
+
+function trackAssessmentSnapshot() {
+
+  if (!selectedPeerGroup) {
+    return;
+  }
+
+  const peerData =
+    STOCK_REQUIREMENTS[
+      selectedPeerGroup
+    ];
+
+  if (!peerData) {
+    return;
+  }
+
+  let meets = 0;
+  let attention = 0;
+  let notChecked = 0;
+
+  peerData.requirements.forEach(
+    (requirement) => {
+
+      const result =
+        assessmentState[
+          requirement.id
+        ]?.result || "not-checked";
+
+      if (result === "meets") {
+
+        meets += 1;
+
+      } else if (
+        result === "attention"
+      ) {
+
+        attention += 1;
+
+      } else {
+
+        notChecked += 1;
+
+      }
+
+    }
+  );
+
+  trackEvent(
+    "assessment_snapshot",
+    {
+
+      peer_group:
+        selectedPeerGroup,
+
+      peer_group_name:
+        peerData.name,
+
+      meets_requirement:
+        meets,
+
+      needs_attention:
+        attention,
+
+      not_checked:
+        notChecked
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   ERROR SAFETY
+   ========================================================= */
+
+window.addEventListener(
+  "error",
+  (event) => {
+
+    console.error(
+      "StockCheck error:",
+      event.error ||
+      event.message
+    );
+
+  }
+);
+
+/* =========================================================
+   END WV WIC STOCKCHECK
+   ========================================================= */
