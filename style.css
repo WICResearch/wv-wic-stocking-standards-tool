@@ -93,3 +93,1275 @@
   /* ========================================
      MAIN ASSESSMENT AREA
      ======================================== */
+
+/* =========================================================
+   WV WIC STOCKCHECK
+   FINAL MOBILE RESPONSIVE OVERRIDES
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+  /* ---------------------------------------------------------
+     GLOBAL MOBILE SAFETY
+     --------------------------------------------------------- */
+
+  html,
+  body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    margin: 0;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+
+  /* ---------------------------------------------------------
+     ASSESSMENT SHELL
+     --------------------------------------------------------- */
+
+  .assessment-shell {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+
+  /* ---------------------------------------------------------
+     TOP HEADER
+     --------------------------------------------------------- */
+
+  .assessment-topbar {
+    position: relative !important;
+    top: auto !important;
+    width: 100%;
+  }
+
+  .assessment-topbar-inner {
+    width: 100%;
+    max-width: 100%;
+    min-height: 0 !important;
+
+    padding: 10px 14px !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    gap: 10px !important;
+  }
+
+
+  /* WV WIC / StockCheck brand */
+
+  .assessment-brand {
+    flex: 0 1 auto;
+
+    min-width: 0;
+
+    display: flex !important;
+    align-items: center !important;
+
+    gap: 8px !important;
+
+    padding: 0 !important;
+  }
+
+  .assessment-brand img {
+    width: 38px !important;
+    height: 38px !important;
+
+    max-width: 38px !important;
+
+    object-fit: contain;
+    flex-shrink: 0;
+  }
+
+  .assessment-brand div {
+    min-width: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    line-height: 1.05;
+  }
+
+  .assessment-brand strong {
+    font-size: 14px !important;
+    line-height: 1.1 !important;
+  }
+
+  .assessment-brand span {
+    margin-top: 2px;
+
+    font-size: 11px !important;
+    line-height: 1.1 !important;
+  }
+
+
+  /* Current peer group pill */
+
+  .assessment-peer-pill {
+    flex: 0 1 auto;
+
+    min-width: 0;
+    max-width: 48%;
+
+    padding: 7px 9px !important;
+
+    border-radius: 10px !important;
+
+    text-align: right;
+  }
+
+  .assessment-peer-pill span {
+    display: block;
+
+    margin-bottom: 1px;
+
+    font-size: 9px !important;
+    line-height: 1.1 !important;
+
+    white-space: nowrap;
+  }
+
+  .assessment-peer-pill strong {
+    display: block;
+
+    max-width: 100%;
+
+    font-size: 11px !important;
+    line-height: 1.15 !important;
+
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+
+  /* ---------------------------------------------------------
+     MAIN ASSESSMENT AREA
+     --------------------------------------------------------- */
+
+  .assessment-main {
+    width: 100% !important;
+    max-width: 100% !important;
+
+    margin: 0 auto !important;
+
+    padding:
+      18px
+      14px
+      32px !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    gap: 14px !important;
+  }
+
+
+  /* ---------------------------------------------------------
+     ASSESSMENT INTRO
+     --------------------------------------------------------- */
+
+  .assessment-heading {
+    order: 1;
+
+    width: 100%;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+
+    gap: 10px !important;
+  }
+
+  .assessment-heading > div {
+    width: 100%;
+  }
+
+  .assessment-heading .section-kicker {
+    margin-bottom: 4px !important;
+
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+
+    letter-spacing: 0.09em !important;
+  }
+
+  .assessment-heading h1 {
+    margin:
+      0
+      0
+      6px !important;
+
+    font-size: clamp(
+      25px,
+      7vw,
+      32px
+    ) !important;
+
+    line-height: 1.08 !important;
+
+    letter-spacing: -0.03em;
+  }
+
+  .assessment-heading p {
+    max-width: none !important;
+
+    margin: 0 !important;
+
+    font-size: 14px !important;
+    line-height: 1.45 !important;
+  }
+
+
+  /* Change peer group */
+
+  .change-peer-button {
+    align-self: flex-start !important;
+
+    width: auto !important;
+    min-height: 40px !important;
+
+    margin: 0 !important;
+
+    padding:
+      9px
+      14px !important;
+
+    border-radius: 10px !important;
+
+    font-size: 13px !important;
+    line-height: 1.2 !important;
+  }
+
+
+  /* ---------------------------------------------------------
+     MOBILE CONTENT ORDER
+     --------------------------------------------------------- */
+
+  /*
+    On mobile:
+      1. Heading
+      2. Current category/workspace
+      3. Progress
+      4. Category navigation
+      5. Help/reminder information
+  */
+
+  .assessment-heading {
+    order: 1 !important;
+  }
+
+  .assessment-layout {
+    order: 2 !important;
+  }
+
+  .assessment-progress-card {
+    order: 3 !important;
+  }
+
+  .category-nav-wrap {
+    order: 4 !important;
+  }
+
+
+  /* ---------------------------------------------------------
+     ASSESSMENT LAYOUT
+     --------------------------------------------------------- */
+
+  .assessment-layout {
+    width: 100% !important;
+
+    margin: 0 !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+
+    gap: 14px !important;
+  }
+
+  .assessment-workspace {
+    order: 1 !important;
+
+    width: 100% !important;
+    max-width: 100% !important;
+
+    margin: 0 !important;
+
+    display: block !important;
+  }
+
+
+  /* ---------------------------------------------------------
+     CURRENT CATEGORY CARD
+     --------------------------------------------------------- */
+
+  .guided-category-card,
+  .requirement-card {
+    width: 100% !important;
+    max-width: 100% !important;
+
+    margin: 0 !important;
+
+    padding: 18px 16px !important;
+
+    border-radius: 16px !important;
+  }
+
+
+  /* Category title + status */
+
+  .guided-category-header {
+    width: 100%;
+
+    margin-bottom: 14px !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+
+    gap: 10px !important;
+  }
+
+  .guided-category-header > div:first-child {
+    width: 100%;
+  }
+
+  .requirement-label {
+    display: block;
+
+    margin-bottom: 4px !important;
+
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+
+    letter-spacing: 0.08em !important;
+  }
+
+  .guided-category-header h2 {
+    margin: 0 !important;
+
+    font-size: 24px !important;
+    line-height: 1.12 !important;
+
+    overflow-wrap: anywhere;
+  }
+
+
+  /* Status pill */
+
+  .requirement-status {
+    width: auto !important;
+    max-width: 100%;
+
+    min-height: 34px;
+
+    padding:
+      7px
+      10px !important;
+
+    border-radius: 999px !important;
+
+    font-size: 11px !important;
+    line-height: 1.15 !important;
+
+    align-self: flex-start !important;
+  }
+
+  .requirement-status .status-symbol {
+    flex-shrink: 0;
+  }
+
+
+  /* ---------------------------------------------------------
+     MINIMUM REQUIREMENT
+     --------------------------------------------------------- */
+
+  .guided-category-card > .minimum-box,
+  .minimum-box {
+    width: 100% !important;
+
+    margin:
+      0
+      0
+      12px !important;
+
+    padding:
+      15px
+      16px !important;
+
+    border-radius: 12px !important;
+  }
+
+  .guided-category-card .minimum-label,
+  .minimum-label {
+    display: block;
+
+    margin-bottom: 5px !important;
+
+    font-size: 9px !important;
+    line-height: 1.2 !important;
+
+    letter-spacing: 0.09em !important;
+  }
+
+  .guided-category-card .minimum-box p,
+  .minimum-box p {
+    margin: 0 !important;
+
+    font-size: 14px !important;
+    line-height: 1.45 !important;
+
+    font-weight: 700 !important;
+  }
+
+
+  /* ---------------------------------------------------------
+     STOCKING DETAILS
+     --------------------------------------------------------- */
+
+  .guided-category-card > .requirement-note,
+  .requirement-note {
+    width: 100% !important;
+
+    margin:
+      0
+      0
+      16px !important;
+
+    padding:
+      13px
+      14px !important;
+
+    border-radius: 12px !important;
+
+    display: flex !important;
+    align-items: flex-start !important;
+
+    gap: 10px !important;
+  }
+
+  .requirement-note-icon {
+    flex:
+      0
+      0
+      24px !important;
+
+    width: 24px !important;
+    height: 24px !important;
+
+    font-size: 12px !important;
+  }
+
+  .requirement-note-content {
+    min-width: 0;
+  }
+
+  .requirement-note-title {
+    display: block;
+
+    margin-bottom: 4px !important;
+
+    font-size: 9px !important;
+    line-height: 1.2 !important;
+
+    letter-spacing: 0.08em !important;
+  }
+
+  .requirement-note p {
+    margin: 0 !important;
+
+    font-size: 13px !important;
+    line-height: 1.45 !important;
+  }
+
+
+  /* ---------------------------------------------------------
+     CURRENT INVENTORY SECTION
+     --------------------------------------------------------- */
+
+  .inventory-section {
+    width: 100%;
+
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  .inventory-section-heading {
+    width: 100%;
+
+    margin-bottom: 12px !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+
+    gap: 5px !important;
+  }
+
+  .inventory-section-heading .section-kicker {
+    margin-bottom: 3px !important;
+
+    font-size: 9px !important;
+    line-height: 1.2 !important;
+  }
+
+  .inventory-section-heading h3 {
+    margin: 0 !important;
+
+    font-size: 17px !important;
+    line-height: 1.25 !important;
+  }
+
+  .inventory-helper {
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+  }
+
+
+  /* Inventory fields become one column */
+
+  .inventory-grid {
+    width: 100% !important;
+
+    display: grid !important;
+    grid-template-columns:
+      minmax(0, 1fr) !important;
+
+    gap: 10px !important;
+  }
+
+  .inventory-field {
+    width: 100% !important;
+    min-width: 0 !important;
+
+    margin: 0 !important;
+
+    padding: 12px !important;
+
+    border-radius: 11px !important;
+  }
+
+  .inventory-field-label {
+    display: block;
+
+    margin-bottom: 7px !important;
+
+    font-size: 13px !important;
+    line-height: 1.25 !important;
+  }
+
+  .inventory-field input {
+    width: 100% !important;
+    max-width: 100% !important;
+
+    min-height: 46px !important;
+
+    margin: 0 !important;
+
+    padding:
+      10px
+      12px !important;
+
+    border-radius: 9px !important;
+
+    font-size: 16px !important;
+    line-height: 1.2 !important;
+  }
+
+  .inventory-field small {
+    display: block;
+
+    margin-top: 6px !important;
+
+    font-size: 11px !important;
+    line-height: 1.3 !important;
+  }
+
+
+  /* ---------------------------------------------------------
+     PREVIOUS / NEXT
+     --------------------------------------------------------- */
+
+  .guided-category-actions {
+    width: 100%;
+
+    margin-top: 16px !important;
+    padding-top: 14px !important;
+
+    display: grid !important;
+
+    grid-template-columns:
+      minmax(0, 1fr)
+      auto
+      minmax(0, 1fr) !important;
+
+    align-items: center !important;
+
+    gap: 8px !important;
+  }
+
+  .guided-category-actions button {
+    width: 100% !important;
+    min-width: 0 !important;
+
+    min-height: 42px !important;
+
+    padding:
+      9px
+      8px !important;
+
+    border-radius: 10px !important;
+
+    font-size: 12px !important;
+    line-height: 1.15 !important;
+
+    white-space: normal;
+  }
+
+  .category-position {
+    min-width: 36px;
+
+    text-align: center;
+
+    font-size: 11px !important;
+    line-height: 1.2 !important;
+  }
+
+
+  /* ---------------------------------------------------------
+     PROGRESS CARD
+     --------------------------------------------------------- */
+
+  .assessment-progress-card {
+    width: 100% !important;
+
+    margin: 0 !important;
+
+    padding:
+      14px
+      14px !important;
+
+    border-radius: 14px !important;
+  }
+
+  .assessment-progress-copy {
+    margin-bottom: 9px !important;
+
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: space-between !important;
+
+    gap: 10px !important;
+  }
+
+  .assessment-progress-copy > div {
+    min-width: 0;
+  }
+
+  .progress-label {
+    display: block;
+
+    margin-bottom: 2px !important;
+
+    font-size: 9px !important;
+    line-height: 1.2 !important;
+
+    letter-spacing: 0.07em !important;
+  }
+
+  .assessment-progress-copy strong {
+    font-size: 13px !important;
+    line-height: 1.2 !important;
+  }
+
+  #progressPercent {
+    flex-shrink: 0;
+
+    font-size: 16px !important;
+    line-height: 1 !important;
+  }
+
+  .assessment-progress-track {
+    height: 7px !important;
+
+    margin:
+      0
+      0
+      11px !important;
+
+    border-radius: 999px !important;
+  }
+
+
+  /* Progress summary */
+
+  .assessment-status-summary {
+    width: 100%;
+
+    display: grid !important;
+    grid-template-columns:
+      repeat(
+        3,
+        minmax(0, 1fr)
+      ) !important;
+
+    gap: 6px !important;
+  }
+
+  .summary-stat {
+    min-width: 0;
+
+    padding:
+      8px
+      5px !important;
+
+    border-radius: 9px !important;
+
+    text-align: center;
+  }
+
+  .summary-stat-number {
+    display: block;
+
+    margin-bottom: 2px !important;
+
+    font-size: 17px !important;
+    line-height: 1 !important;
+  }
+
+  .summary-stat > span:last-child {
+    display: block;
+
+    font-size: 9px !important;
+    line-height: 1.15 !important;
+
+    overflow-wrap: anywhere;
+  }
+
+
+  /* ---------------------------------------------------------
+     CATEGORY NAVIGATION
+     --------------------------------------------------------- */
+
+  .category-nav-wrap {
+    width: 100% !important;
+
+    margin: 0 !important;
+
+    padding:
+      14px !important;
+
+    border-radius: 14px !important;
+  }
+
+  .category-nav-heading {
+    margin-bottom: 10px !important;
+
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: space-between !important;
+
+    gap: 8px !important;
+  }
+
+  .category-nav-heading .section-kicker {
+    margin-bottom: 2px !important;
+
+    font-size: 9px !important;
+    line-height: 1.2 !important;
+  }
+
+  .category-nav-heading h2 {
+    margin: 0 !important;
+
+    font-size: 16px !important;
+    line-height: 1.2 !important;
+  }
+
+  .category-count {
+    flex-shrink: 0;
+
+    font-size: 10px !important;
+    line-height: 1.2 !important;
+  }
+
+
+  /* Compact category buttons */
+
+  .category-nav {
+    width: 100% !important;
+
+    display: grid !important;
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      ) !important;
+
+    gap: 7px !important;
+  }
+
+  .category-nav-item {
+    width: 100% !important;
+    min-width: 0 !important;
+
+    min-height: 42px !important;
+
+    margin: 0 !important;
+
+    padding:
+      7px
+      8px !important;
+
+    border-radius: 9px !important;
+
+    display: flex !important;
+    align-items: center !important;
+
+    gap: 7px !important;
+
+    text-align: left !important;
+  }
+
+  .category-nav-symbol {
+    flex:
+      0
+      0
+      25px !important;
+
+    width: 25px !important;
+    height: 25px !important;
+
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    border-radius: 50% !important;
+
+    font-size: 10px !important;
+    line-height: 1 !important;
+  }
+
+  .category-nav-name {
+    min-width: 0;
+
+    font-size: 10px !important;
+    line-height: 1.15 !important;
+
+    overflow-wrap: anywhere;
+  }
+
+
+  /* ---------------------------------------------------------
+     SIDEBAR / HELP
+     --------------------------------------------------------- */
+
+  /*
+    The desktop sidebar is useful,
+    but on a phone it creates a huge
+    wall of content between categories.
+
+    Hide it on mobile. All essential
+    assessment instructions remain
+    available in the main interface.
+  */
+
+  .assessment-sidebar {
+    display: none !important;
+  }
+
+
+  /* ---------------------------------------------------------
+     RESULTS PAGE
+     --------------------------------------------------------- */
+
+  .results-main {
+    padding:
+      18px
+      14px
+      32px !important;
+
+    gap: 14px !important;
+  }
+
+  .results-hero {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .results-hero .section-kicker {
+    font-size: 10px !important;
+  }
+
+  .results-hero h1 {
+    margin:
+      4px
+      0
+      7px !important;
+
+    font-size: 27px !important;
+    line-height: 1.08 !important;
+  }
+
+  .results-hero p {
+    margin: 0 !important;
+
+    font-size: 14px !important;
+    line-height: 1.45 !important;
+  }
+
+
+  .results-overview-card {
+    margin: 0 !important;
+
+    padding:
+      14px !important;
+
+    border-radius: 14px !important;
+  }
+
+  .results-overview-heading {
+    margin-bottom: 9px !important;
+  }
+
+  .results-overview-heading strong {
+    font-size: 13px !important;
+  }
+
+  .results-overview-heading > span {
+    font-size: 16px !important;
+  }
+
+
+  .results-notice {
+    margin: 0 !important;
+
+    padding:
+      12px
+      13px !important;
+
+    border-radius: 12px !important;
+
+    gap: 9px !important;
+  }
+
+  .results-notice > span {
+    flex:
+      0
+      0
+      24px;
+
+    width: 24px;
+    height: 24px;
+  }
+
+  .results-notice strong {
+    font-size: 13px !important;
+  }
+
+  .results-notice p {
+    margin-top: 3px !important;
+
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+  }
+
+
+  .results-list-section {
+    margin: 0 !important;
+  }
+
+  .results-section-heading {
+    margin-bottom: 10px !important;
+  }
+
+  .results-section-heading h2 {
+    font-size: 19px !important;
+  }
+
+
+  .results-category-list {
+    gap: 9px !important;
+  }
+
+  .result-category-card {
+    width: 100% !important;
+
+    padding:
+      13px !important;
+
+    border-radius: 12px !important;
+
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+
+    gap: 10px !important;
+  }
+
+  .result-category-main {
+    width: 100%;
+
+    display: flex !important;
+    align-items: flex-start !important;
+
+    gap: 10px !important;
+  }
+
+  .result-category-number {
+    flex:
+      0
+      0
+      28px !important;
+
+    width: 28px !important;
+    height: 28px !important;
+
+    font-size: 11px !important;
+  }
+
+  .result-category-copy {
+    min-width: 0;
+  }
+
+  .result-category-copy h3 {
+    margin:
+      0
+      0
+      3px !important;
+
+    font-size: 15px !important;
+    line-height: 1.2 !important;
+  }
+
+  .result-category-copy p {
+    margin: 0 !important;
+
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+  }
+
+
+  .result-category-card
+  > .requirement-status {
+    align-self: flex-start !important;
+  }
+
+
+  /* Results buttons */
+
+  .results-actions {
+    width: 100%;
+
+    margin: 0 !important;
+
+    display: grid !important;
+    grid-template-columns:
+      1fr !important;
+
+    gap: 8px !important;
+  }
+
+  .results-actions button {
+    width: 100% !important;
+
+    min-height: 44px !important;
+
+    padding:
+      10px
+      12px !important;
+
+    border-radius: 10px !important;
+
+    font-size: 13px !important;
+  }
+
+
+  /* Disclaimer */
+
+  .results-disclaimer {
+    width: 100%;
+
+    margin: 0 !important;
+
+    padding:
+      13px !important;
+
+    border-radius: 12px !important;
+
+    display: flex !important;
+    align-items: flex-start !important;
+
+    gap: 10px !important;
+  }
+
+  .results-disclaimer img {
+    flex-shrink: 0;
+
+    width: 35px !important;
+    height: auto !important;
+  }
+
+  .results-disclaimer strong {
+    font-size: 12px !important;
+  }
+
+  .results-disclaimer p {
+    margin-top: 3px !important;
+
+    font-size: 11px !important;
+    line-height: 1.4 !important;
+  }
+
+}
+
+
+/* =========================================================
+   EXTRA-SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 390px) {
+
+  .assessment-topbar-inner {
+    padding:
+      9px
+      11px !important;
+  }
+
+  .assessment-brand img {
+    width: 34px !important;
+    height: 34px !important;
+  }
+
+  .assessment-brand strong {
+    font-size: 13px !important;
+  }
+
+  .assessment-brand span {
+    font-size: 10px !important;
+  }
+
+  .assessment-peer-pill {
+    max-width: 50%;
+
+    padding:
+      6px
+      7px !important;
+  }
+
+  .assessment-peer-pill span {
+    font-size: 8px !important;
+  }
+
+  .assessment-peer-pill strong {
+    font-size: 10px !important;
+  }
+
+
+  .assessment-main,
+  .results-main {
+    padding:
+      15px
+      11px
+      28px !important;
+  }
+
+
+  .assessment-heading h1 {
+    font-size: 24px !important;
+  }
+
+
+  .guided-category-card,
+  .requirement-card {
+    padding:
+      15px
+      13px !important;
+  }
+
+
+  .guided-category-header h2 {
+    font-size: 21px !important;
+  }
+
+
+  .guided-category-actions {
+    grid-template-columns:
+      1fr
+      32px
+      1fr !important;
+
+    gap: 5px !important;
+  }
+
+  .guided-category-actions button {
+    padding:
+      8px
+      5px !important;
+
+    font-size: 11px !important;
+  }
+
+
+  .assessment-status-summary {
+    gap: 4px !important;
+  }
+
+  .summary-stat {
+    padding:
+      7px
+      3px !important;
+  }
+
+  .summary-stat-number {
+    font-size: 15px !important;
+  }
+
+  .summary-stat > span:last-child {
+    font-size: 8px !important;
+  }
+
+
+  .category-nav-wrap {
+    padding:
+      12px !important;
+  }
+
+  .category-nav {
+    gap: 5px !important;
+  }
+
+  .category-nav-item {
+    min-height: 40px !important;
+
+    padding:
+      6px !important;
+
+    gap: 5px !important;
+  }
+
+  .category-nav-symbol {
+    flex-basis: 23px !important;
+
+    width: 23px !important;
+    height: 23px !important;
+  }
+
+  .category-nav-name {
+    font-size: 9px !important;
+  }
+
+}
