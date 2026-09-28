@@ -97,7 +97,9 @@ function renderAssessment(peerGroup) {
           <div class="assessment-progress-copy">
             <div>
               <span class="progress-label">Assessment progress</span>
-              <strong id="completedCount">0 of ${requirements.length} checked</strong>
+              <strong id="completedCount">
+                0 of ${requirements.length} checked
+              </strong>
             </div>
 
             <span id="progressPercent">0%</span>
@@ -114,19 +116,32 @@ function renderAssessment(peerGroup) {
           <div class="assessment-status-summary">
 
             <div class="summary-stat summary-neutral">
-              <span class="summary-stat-number" id="notCheckedCount">
+              <span
+                class="summary-stat-number"
+                id="notCheckedCount"
+              >
                 ${requirements.length}
               </span>
               <span>Not yet checked</span>
             </div>
 
             <div class="summary-stat summary-success">
-              <span class="summary-stat-number" id="meetsCount">0</span>
+              <span
+                class="summary-stat-number"
+                id="meetsCount"
+              >
+                0
+              </span>
               <span>Meets requirement</span>
             </div>
 
             <div class="summary-stat summary-attention">
-              <span class="summary-stat-number" id="attentionCount">0</span>
+              <span
+                class="summary-stat-number"
+                id="attentionCount"
+              >
+                0
+              </span>
               <span>Needs attention</span>
             </div>
 
@@ -135,21 +150,28 @@ function renderAssessment(peerGroup) {
         </section>
 
         <section class="category-nav-wrap">
+
           <div class="category-nav-heading">
+
             <div>
-              <span class="section-kicker">FOOD CATEGORIES</span>
+              <span class="section-kicker">
+                FOOD CATEGORIES
+              </span>
+
               <h2>Jump to a category</h2>
             </div>
 
             <span class="category-count">
               ${requirements.length} categories
             </span>
+
           </div>
 
           <div
             class="category-nav"
             id="categoryNav"
           ></div>
+
         </section>
 
         <div class="assessment-layout">
@@ -168,16 +190,26 @@ function renderAssessment(peerGroup) {
           <aside class="assessment-sidebar">
 
             <div class="sidebar-card">
-              <span class="sidebar-kicker">CURRENT PEER GROUP</span>
-              <strong>Peer Group ${peerGroup}</strong>
+              <span class="sidebar-kicker">
+                CURRENT PEER GROUP
+              </span>
+
+              <strong>
+                Peer Group ${peerGroup}
+              </strong>
+
               <p>${peerData.name}</p>
             </div>
 
             <div class="sidebar-card">
-              <span class="sidebar-kicker">HOW TO USE STOCKCHECK</span>
+
+              <span class="sidebar-kicker">
+                HOW TO USE STOCKCHECK
+              </span>
 
               <div class="sidebar-step">
                 <span>1</span>
+
                 <p>
                   Enter the inventory currently available for the
                   category shown.
@@ -186,6 +218,7 @@ function renderAssessment(peerGroup) {
 
               <div class="sidebar-step">
                 <span>2</span>
+
                 <p>
                   StockCheck compares your entries with the minimum
                   requirement for your peer group.
@@ -194,20 +227,27 @@ function renderAssessment(peerGroup) {
 
               <div class="sidebar-step">
                 <span>3</span>
+
                 <p>
                   Continue through all categories and review your
                   results when finished.
                 </p>
               </div>
+
             </div>
 
             <div class="sidebar-card sidebar-help-card">
-              <span class="sidebar-kicker">REMINDER</span>
+
+              <span class="sidebar-kicker">
+                REMINDER
+              </span>
+
               <p>
                 StockCheck is a self-check tool. Always refer to
                 current West Virginia WIC vendor guidance for
                 official program requirements.
               </p>
+
             </div>
 
           </aside>
@@ -223,10 +263,26 @@ function renderAssessment(peerGroup) {
   initializeAssessmentEvents(requirements);
   restoreCurrentCategoryValues(currentRequirement);
   updateAssessmentSummary();
+
+  // Important mobile fix:
+  // every fresh assessment render begins at the top.
+  requestAnimationFrame(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "auto"
+    });
+  });
 }
 
+
+/* =========================================================
+   CATEGORY NAVIGATION
+   ========================================================= */
+
 function renderCategoryNavigation(requirements) {
-  const categoryNav = document.getElementById("categoryNav");
+  const categoryNav =
+    document.getElementById("categoryNav");
 
   if (!categoryNav) {
     return;
@@ -234,8 +290,12 @@ function renderCategoryNavigation(requirements) {
 
   categoryNav.innerHTML = requirements
     .map((requirement, index) => {
-      const state = assessmentState[requirement.id];
-      const isCurrent = index === currentCategoryIndex;
+
+      const state =
+        assessmentState[requirement.id];
+
+      const isCurrent =
+        index === currentCategoryIndex;
 
       let statusClass = "";
       let statusSymbol = "";
@@ -243,7 +303,9 @@ function renderCategoryNavigation(requirements) {
       if (state?.result === "meets") {
         statusClass = "nav-success";
         statusSymbol = "✓";
-      } else if (state?.result === "attention") {
+      } else if (
+        state?.result === "attention"
+      ) {
         statusClass = "nav-attention";
         statusSymbol = "!";
       }
@@ -273,36 +335,76 @@ function renderCategoryNavigation(requirements) {
   categoryNav
     .querySelectorAll(".category-nav-item")
     .forEach((button) => {
-      button.addEventListener("click", () => {
-        saveCurrentCategoryValues(requirements[currentCategoryIndex]);
 
-        currentCategoryIndex =
-          Number(button.dataset.categoryIndex);
+      button.addEventListener(
+        "click",
+        () => {
 
-        renderAssessment(selectedPeerGroup);
-      });
+          saveCurrentCategoryValues(
+            requirements[currentCategoryIndex]
+          );
+
+          currentCategoryIndex =
+            Number(
+              button.dataset.categoryIndex
+            );
+
+          renderAssessment(
+            selectedPeerGroup
+          );
+
+          scrollToCurrentCategory();
+        }
+      );
+
     });
 }
+
+
+/* =========================================================
+   CURRENT CATEGORY
+   ========================================================= */
 
 function renderCurrentCategory(
   requirement,
   requirements,
   categoryIndex
 ) {
-  const storedState = assessmentState[requirement.id];
-  const result = storedState?.result || "not-checked";
+  const storedState =
+    assessmentState[requirement.id];
 
-  let statusClass = "status-not-checked";
-  let statusText = "Not Yet Checked";
+  const result =
+    storedState?.result ||
+    "not-checked";
+
+  let statusClass =
+    "status-not-checked";
+
+  let statusText =
+    "Not Yet Checked";
+
   let statusSymbol = "○";
 
   if (result === "meets") {
-    statusClass = "status-success";
-    statusText = "Meets Requirement";
+
+    statusClass =
+      "status-success";
+
+    statusText =
+      "Meets Requirement";
+
     statusSymbol = "✓";
-  } else if (result === "attention") {
-    statusClass = "status-attention";
-    statusText = "Needs Attention";
+
+  } else if (
+    result === "attention"
+  ) {
+
+    statusClass =
+      "status-attention";
+
+    statusText =
+      "Needs Attention";
+
     statusSymbol = "!";
   }
 
@@ -315,24 +417,38 @@ function renderCurrentCategory(
       <div class="guided-category-header">
 
         <div>
+
           <span class="requirement-label">
-            Category ${categoryIndex + 1} of ${requirements.length}
+            Category ${categoryIndex + 1}
+            of ${requirements.length}
           </span>
 
-          <h2>${requirement.category}</h2>
+          <h2>
+            ${requirement.category}
+          </h2>
+
         </div>
 
         <div
           class="requirement-status ${statusClass}"
           id="status-${requirement.id}"
         >
-          <span class="status-symbol">${statusSymbol}</span>
-          <span>${statusText}</span>
+
+          <span class="status-symbol">
+            ${statusSymbol}
+          </span>
+
+          <span>
+            ${statusText}
+          </span>
+
         </div>
 
       </div>
 
+
       <div class="minimum-box">
+
         <span class="minimum-label">
           MINIMUM REQUIREMENT
         </span>
@@ -340,15 +456,21 @@ function renderCurrentCategory(
         <p>
           ${getRequirementSummary(requirement)}
         </p>
+
       </div>
+
 
       ${
         requirement.note
           ? `
             <div class="requirement-note">
-              <span class="requirement-note-icon">i</span>
+
+              <span class="requirement-note-icon">
+                i
+              </span>
 
               <div class="requirement-note-content">
+
                 <strong class="requirement-note-title">
                   STOCKING DETAILS
                 </strong>
@@ -356,31 +478,41 @@ function renderCurrentCategory(
                 <p>
                   ${requirement.note}
                 </p>
+
               </div>
+
             </div>
           `
           : ""
       }
 
+
       <section class="inventory-section">
 
         <div class="inventory-section-heading">
+
           <div>
+
             <span class="section-kicker">
               CURRENT INVENTORY
             </span>
 
-            <h3>What do you currently have in stock?</h3>
+            <h3>
+              What do you currently have in stock?
+            </h3>
+
           </div>
 
           <span class="inventory-helper">
             Enter numbers only
           </span>
+
         </div>
 
         ${buildInventoryFields(requirement)}
 
       </section>
+
 
       <div class="guided-category-actions">
 
@@ -388,17 +520,24 @@ function renderCurrentCategory(
           type="button"
           class="secondary-button"
           id="previousCategoryButton"
-          ${categoryIndex === 0 ? "disabled" : ""}
+          ${
+            categoryIndex === 0
+              ? "disabled"
+              : ""
+          }
         >
           ← Previous
         </button>
 
         <div class="category-position">
-          ${categoryIndex + 1} / ${requirements.length}
+          ${categoryIndex + 1}
+          /
+          ${requirements.length}
         </div>
 
         ${
-          categoryIndex < requirements.length - 1
+          categoryIndex <
+          requirements.length - 1
             ? `
               <button
                 type="button"
@@ -425,7 +564,13 @@ function renderCurrentCategory(
   `;
 }
 
+
+/* =========================================================
+   INVENTORY FIELDS
+   ========================================================= */
+
 function buildInventoryFields(requirement) {
+
   switch (requirement.type) {
 
     case "standard":
@@ -433,7 +578,8 @@ function buildInventoryFields(requirement) {
         <div class="inventory-grid">
 
           ${
-            requirement.varieties !== undefined
+            requirement.varieties !==
+            undefined
               ? numberField(
                   requirement.id,
                   "varieties",
@@ -453,6 +599,7 @@ function buildInventoryFields(requirement) {
         </div>
       `;
 
+
     case "formula":
     case "formula-request":
       return `
@@ -467,6 +614,7 @@ function buildInventoryFields(requirement) {
 
         </div>
       `;
+
 
     case "infant-produce":
       return `
@@ -496,6 +644,7 @@ function buildInventoryFields(requirement) {
         </div>
       `;
 
+
     case "yogurt":
       return `
         <div class="inventory-grid">
@@ -523,6 +672,7 @@ function buildInventoryFields(requirement) {
 
         </div>
       `;
+
 
     case "either-size":
       return `
@@ -552,6 +702,7 @@ function buildInventoryFields(requirement) {
         </div>
       `;
 
+
     case "cereal":
       return `
         <div class="inventory-grid">
@@ -579,6 +730,7 @@ function buildInventoryFields(requirement) {
 
         </div>
       `;
+
 
     case "beans":
       return `
@@ -608,6 +760,7 @@ function buildInventoryFields(requirement) {
         </div>
       `;
 
+
     case "whole-grain":
       return `
         <div class="inventory-grid">
@@ -636,9 +789,11 @@ function buildInventoryFields(requirement) {
         </div>
       `;
 
+
     case "milk-pg1":
     case "milk-pg2":
     case "milk-pg3": {
+
       const typeMinimum =
         requirement.type === "milk-pg1"
           ? requirement.milkTypes.length
@@ -676,6 +831,7 @@ function buildInventoryFields(requirement) {
       `;
     }
 
+
     case "split-milk":
       return `
         <div class="inventory-grid">
@@ -704,6 +860,7 @@ function buildInventoryFields(requirement) {
         </div>
       `;
 
+
     case "produce-and":
       return `
         <div class="inventory-grid">
@@ -723,7 +880,8 @@ function buildInventoryFields(requirement) {
           )}
 
           ${
-            requirement.freshVarieties !== undefined
+            requirement.freshVarieties !==
+            undefined
               ? numberField(
                   requirement.id,
                   "freshVarieties",
@@ -763,6 +921,7 @@ function buildInventoryFields(requirement) {
 
         </div>
       `;
+
 
     case "produce-or":
       return `
@@ -806,6 +965,7 @@ function buildInventoryFields(requirement) {
         </div>
       `;
 
+
     default:
       return `
         <div class="inventory-grid">
@@ -814,7 +974,10 @@ function buildInventoryFields(requirement) {
             requirement.id,
             "quantity",
             "Quantity in stock",
-            "Enter current stock"
+            requirement.minimum !==
+            undefined
+              ? `Minimum: ${requirement.minimum}`
+              : ""
           )}
 
         </div>
@@ -822,11 +985,16 @@ function buildInventoryFields(requirement) {
   }
 }
 
+
+/* =========================================================
+   NUMBER FIELD
+   ========================================================= */
+
 function numberField(
   requirementId,
   field,
   label,
-  helper
+  helper = ""
 ) {
   return `
     <label class="inventory-field">
@@ -875,95 +1043,207 @@ function initializeAssessmentEvents(requirements) {
   const resultsButton =
     document.getElementById("viewResultsButton");
 
-  const inputs = document.querySelectorAll(
-    'input[data-requirement]'
-  );
+  const inputs =
+    document.querySelectorAll(
+      'input[data-requirement]'
+    );
+
 
   inputs.forEach((input) => {
 
-    input.addEventListener("input", () => {
-      saveCurrentCategoryValues(
-        requirements[currentCategoryIndex]
-      );
+    input.addEventListener(
+      "input",
+      () => {
 
-      updateCurrentCategoryStatus(
-        requirements[currentCategoryIndex]
-      );
+        saveCurrentCategoryValues(
+          requirements[currentCategoryIndex]
+        );
 
-      updateAssessmentSummary();
-      renderCategoryNavigation(requirements);
-    });
+        updateCurrentCategoryStatus(
+          requirements[currentCategoryIndex]
+        );
 
-    input.addEventListener("change", () => {
-      saveCurrentCategoryValues(
-        requirements[currentCategoryIndex]
-      );
+        updateAssessmentSummary();
+        renderCategoryNavigation(
+          requirements
+        );
 
-      updateCurrentCategoryStatus(
-        requirements[currentCategoryIndex]
-      );
+      }
+    );
 
-      updateAssessmentSummary();
-      renderCategoryNavigation(requirements);
-    });
+
+    input.addEventListener(
+      "change",
+      () => {
+
+        saveCurrentCategoryValues(
+          requirements[currentCategoryIndex]
+        );
+
+        updateCurrentCategoryStatus(
+          requirements[currentCategoryIndex]
+        );
+
+        updateAssessmentSummary();
+        renderCategoryNavigation(
+          requirements
+        );
+
+      }
+    );
 
   });
 
+
   if (previousButton) {
-    previousButton.addEventListener("click", () => {
 
-      saveCurrentCategoryValues(
-        requirements[currentCategoryIndex]
-      );
+    previousButton.addEventListener(
+      "click",
+      () => {
 
-      if (currentCategoryIndex > 0) {
-        currentCategoryIndex -= 1;
-        renderAssessment(selectedPeerGroup);
+        saveCurrentCategoryValues(
+          requirements[currentCategoryIndex]
+        );
+
+        if (currentCategoryIndex > 0) {
+
+          currentCategoryIndex -= 1;
+
+          renderAssessment(
+            selectedPeerGroup
+          );
+
+          scrollToCurrentCategory();
+        }
+
       }
+    );
 
-    });
   }
+
 
   if (nextButton) {
-    nextButton.addEventListener("click", () => {
 
-      saveCurrentCategoryValues(
-        requirements[currentCategoryIndex]
-      );
+    nextButton.addEventListener(
+      "click",
+      () => {
 
-      if (
-        currentCategoryIndex <
-        requirements.length - 1
-      ) {
-        currentCategoryIndex += 1;
-        renderAssessment(selectedPeerGroup);
+        saveCurrentCategoryValues(
+          requirements[currentCategoryIndex]
+        );
+
+        if (
+          currentCategoryIndex <
+          requirements.length - 1
+        ) {
+
+          currentCategoryIndex += 1;
+
+          renderAssessment(
+            selectedPeerGroup
+          );
+
+          scrollToCurrentCategory();
+        }
+
       }
+    );
 
-    });
   }
+
 
   if (resultsButton) {
-    resultsButton.addEventListener("click", () => {
 
-      saveCurrentCategoryValues(
-        requirements[currentCategoryIndex]
-      );
+    resultsButton.addEventListener(
+      "click",
+      () => {
 
-      renderResults();
-    });
+        saveCurrentCategoryValues(
+          requirements[currentCategoryIndex]
+        );
+
+        renderResults();
+
+      }
+    );
+
   }
+
 
   if (changePeerButton) {
-    changePeerButton.addEventListener("click", () => {
-      window.location.reload();
-    });
+
+    changePeerButton.addEventListener(
+      "click",
+      () => {
+        window.location.reload();
+      }
+    );
+
   }
 
+
   if (returnHomeButton) {
-    returnHomeButton.addEventListener("click", () => {
-      window.location.reload();
-    });
+
+    returnHomeButton.addEventListener(
+      "click",
+      () => {
+        window.location.reload();
+      }
+    );
+
   }
+
+}
+
+
+/* =========================================================
+   MOBILE / CATEGORY SCROLL HELPER
+   ========================================================= */
+
+function scrollToCurrentCategory() {
+
+  requestAnimationFrame(() => {
+
+    const workspace =
+      document.getElementById(
+        "requirementsList"
+      );
+
+    if (!workspace) {
+
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "auto"
+      });
+
+      return;
+    }
+
+
+    if (
+      window.matchMedia(
+        "(max-width: 768px)"
+      ).matches
+    ) {
+
+      const top =
+        workspace
+          .getBoundingClientRect()
+          .top +
+        window.scrollY -
+        12;
+
+      window.scrollTo({
+        top: Math.max(0, top),
+        left: 0,
+        behavior: "auto"
+      });
+
+    }
+
+  });
+
 }
 
 
@@ -971,65 +1251,106 @@ function initializeAssessmentEvents(requirements) {
    SAVE CURRENT CATEGORY
    ========================================================= */
 
-function saveCurrentCategoryValues(requirement) {
+function saveCurrentCategoryValues(
+  requirement
+) {
 
   if (!requirement) {
     return;
   }
 
-  const inputs = document.querySelectorAll(
-    `[data-requirement="${requirement.id}"]`
-  );
+
+  const inputs =
+    document.querySelectorAll(
+      `[data-requirement="${requirement.id}"]`
+    );
+
 
   const values = {};
 
+
   inputs.forEach((input) => {
 
-    const field = input.dataset.field;
+    const field =
+      input.dataset.field;
 
     if (!field) {
       return;
     }
 
-    if (input.type === "checkbox") {
-      values[field] = input.checked;
+
+    if (
+      input.type === "checkbox"
+    ) {
+
+      values[field] =
+        input.checked;
+
     } else {
-      values[field] = input.value;
+
+      values[field] =
+        input.value;
+
     }
 
   });
 
-  const hasEntry = Object.values(values).some((value) => {
-    return (
-      value === true ||
-      (
-        value !== "" &&
-        value !== null &&
-        value !== undefined
-      )
-    );
-  });
 
-  let result = "not-checked";
+  const hasEntry =
+    Object.values(values)
+      .some((value) => {
+
+        return (
+          value === true ||
+          (
+            value !== "" &&
+            value !== null &&
+            value !== undefined
+          )
+        );
+
+      });
+
+
+  let result =
+    "not-checked";
+
 
   if (hasEntry) {
-    result = evaluateRequirement(
-      requirement,
-      values
-    );
+
+    result =
+      evaluateRequirement(
+        requirement,
+        values
+      );
+
   }
 
-  assessmentState[requirement.id] = {
+
+  assessmentState[
+    requirement.id
+  ] = {
     values,
     result
   };
 
-  trackEvent("category_checked", {
-    peer_group: selectedPeerGroup,
-    category: requirement.category,
-    requirement_id: requirement.id,
-    result
-  });
+
+  trackEvent(
+    "category_checked",
+    {
+      peer_group:
+        selectedPeerGroup,
+
+      category:
+        requirement.category,
+
+      requirement_id:
+        requirement.id,
+
+      result
+    }
+  );
+
 }
 
 
@@ -1037,37 +1358,60 @@ function saveCurrentCategoryValues(requirement) {
    RESTORE CATEGORY VALUES
    ========================================================= */
 
-function restoreCurrentCategoryValues(requirement) {
+function restoreCurrentCategoryValues(
+  requirement
+) {
 
   if (!requirement) {
     return;
   }
 
+
   const stored =
-    assessmentState[requirement.id];
+    assessmentState[
+      requirement.id
+    ];
+
 
   if (!stored?.values) {
     return;
   }
 
-  Object.entries(stored.values)
-    .forEach(([field, value]) => {
 
-      const input = document.querySelector(
-        `[data-requirement="${requirement.id}"][data-field="${field}"]`
-      );
+  Object.entries(
+    stored.values
+  ).forEach(
+    ([field, value]) => {
+
+      const input =
+        document.querySelector(
+          `[data-requirement="${requirement.id}"][data-field="${field}"]`
+        );
+
 
       if (!input) {
         return;
       }
 
-      if (input.type === "checkbox") {
-        input.checked = Boolean(value);
+
+      if (
+        input.type ===
+        "checkbox"
+      ) {
+
+        input.checked =
+          Boolean(value);
+
       } else {
-        input.value = value;
+
+        input.value =
+          value;
+
       }
 
-    });
+    }
+  );
+
 }
 
 
@@ -1075,26 +1419,36 @@ function restoreCurrentCategoryValues(requirement) {
    CURRENT CATEGORY STATUS
    ========================================================= */
 
-function updateCurrentCategoryStatus(requirement) {
+function updateCurrentCategoryStatus(
+  requirement
+) {
 
   if (!requirement) {
     return;
   }
 
+
   const stored =
-    assessmentState[requirement.id];
+    assessmentState[
+      requirement.id
+    ];
+
 
   const result =
-    stored?.result || "not-checked";
+    stored?.result ||
+    "not-checked";
+
 
   const status =
     document.getElementById(
       `status-${requirement.id}`
     );
 
+
   if (!status) {
     return;
   }
+
 
   status.classList.remove(
     "status-not-checked",
@@ -1102,40 +1456,59 @@ function updateCurrentCategoryStatus(requirement) {
     "status-attention"
   );
 
+
+  let statusClass =
+    "status-not-checked";
+
+  let statusText =
+    "Not Yet Checked";
+
+  let statusSymbol =
+    "○";
+
+
   if (result === "meets") {
 
-    status.classList.add(
-      "status-success"
-    );
+    statusClass =
+      "status-success";
 
-    status.innerHTML = `
-      <span class="status-symbol">✓</span>
-      <span>Meets Requirement</span>
-    `;
+    statusText =
+      "Meets Requirement";
 
-  } else if (result === "attention") {
+    statusSymbol =
+      "✓";
 
-    status.classList.add(
-      "status-attention"
-    );
+  } else if (
+    result === "attention"
+  ) {
 
-    status.innerHTML = `
-      <span class="status-symbol">!</span>
-      <span>Needs Attention</span>
-    `;
+    statusClass =
+      "status-attention";
 
-  } else {
+    statusText =
+      "Needs Attention";
 
-    status.classList.add(
-      "status-not-checked"
-    );
-
-    status.innerHTML = `
-      <span class="status-symbol">○</span>
-      <span>Not Yet Checked</span>
-    `;
+    statusSymbol =
+      "!";
 
   }
+
+
+  status.classList.add(
+    statusClass
+  );
+
+
+  status.innerHTML = `
+    <span class="status-symbol">
+      ${statusSymbol}
+    </span>
+
+    <span>
+      ${statusText}
+    </span>
+  `;
+
 }
 
 
@@ -1149,44 +1522,91 @@ function updateAssessmentSummary() {
     return;
   }
 
-  const requirements =
+
+  const peerData =
     STOCK_REQUIREMENTS[
       selectedPeerGroup
-    ]?.requirements || [];
+    ];
+
+
+  if (!peerData) {
+    return;
+  }
+
+
+  const requirements =
+    peerData.requirements;
+
 
   let meets = 0;
   let attention = 0;
   let notChecked = 0;
 
-  requirements.forEach((requirement) => {
 
-    const result =
-      assessmentState[
-        requirement.id
-      ]?.result || "not-checked";
+  requirements.forEach(
+    (requirement) => {
 
-    if (result === "meets") {
-      meets += 1;
-    } else if (result === "attention") {
-      attention += 1;
-    } else {
-      notChecked += 1;
+      const result =
+        assessmentState[
+          requirement.id
+        ]?.result ||
+        "not-checked";
+
+
+      if (
+        result === "meets"
+      ) {
+
+        meets += 1;
+
+      } else if (
+        result ===
+        "attention"
+      ) {
+
+        attention += 1;
+
+      } else {
+
+        notChecked += 1;
+
+      }
+
     }
+  );
 
-  });
 
   const completed =
     meets + attention;
 
+
   const total =
     requirements.length;
+
 
   const percent =
     total > 0
       ? Math.round(
-          (completed / total) * 100
+          (completed / total) *
+          100
         )
       : 0;
+
+
+  const completedCount =
+    document.getElementById(
+      "completedCount"
+    );
+
+  const progressPercent =
+    document.getElementById(
+      "progressPercent"
+    );
+
+  const progress =
+    document.getElementById(
+      "assessmentProgress"
+    );
 
   const notCheckedCount =
     document.getElementById(
@@ -1203,55 +1623,59 @@ function updateAssessmentSummary() {
       "attentionCount"
     );
 
-  const completedCount =
-    document.getElementById(
-      "completedCount"
-    );
-
-  const progressPercent =
-    document.getElementById(
-      "progressPercent"
-    );
-
-  const assessmentProgress =
-    document.getElementById(
-      "assessmentProgress"
-    );
-
-  if (notCheckedCount) {
-    notCheckedCount.textContent =
-      notChecked;
-  }
-
-  if (meetsCount) {
-    meetsCount.textContent =
-      meets;
-  }
-
-  if (attentionCount) {
-    attentionCount.textContent =
-      attention;
-  }
 
   if (completedCount) {
+
     completedCount.textContent =
       `${completed} of ${total} checked`;
+
   }
+
 
   if (progressPercent) {
+
     progressPercent.textContent =
       `${percent}%`;
+
   }
 
-  if (assessmentProgress) {
-    assessmentProgress.style.width =
+
+  if (progress) {
+
+    progress.style.width =
       `${percent}%`;
+
   }
+
+
+  if (notCheckedCount) {
+
+    notCheckedCount.textContent =
+      notChecked;
+
+  }
+
+
+  if (meetsCount) {
+
+    meetsCount.textContent =
+      meets;
+
+  }
+
+
+  if (attentionCount) {
+
+    attentionCount.textContent =
+      attention;
+
+  }
+
 }
 
 
 /* =========================================================
-   REQUIREMENT EVALUATION
+   EVALUATE REQUIREMENT
    ========================================================= */
 
 function evaluateRequirement(
@@ -1259,507 +1683,701 @@ function evaluateRequirement(
   values
 ) {
 
-  const v = (key) =>
-    Number(values[key] || 0);
+  const numberValue = (
+    key
+  ) => {
 
-  switch (requirement.type) {
+    const value =
+      Number(values[key]);
 
-    /* -------------------------
-       STANDARD
-       ------------------------- */
+    return Number.isFinite(value)
+      ? value
+      : 0;
 
-    case "standard":
+  };
+
+
+  switch (
+    requirement.type
+  ) {
+
+    case "standard": {
+
+      const quantity =
+        numberValue(
+          "quantity"
+        );
+
+
+      const quantityMeets =
+        quantity >=
+        Number(
+          requirement.minimum ||
+          0
+        );
+
+
+      if (
+        requirement.varieties ===
+        undefined
+      ) {
+
+        return quantityMeets
+          ? "meets"
+          : "attention";
+
+      }
+
+
+      const varieties =
+        numberValue(
+          "varieties"
+        );
+
+
       return (
-        (
-          requirement.varieties ===
-            undefined ||
-          v("varieties") >=
-            Number(
-              requirement.varieties || 0
-            )
-        ) &&
-        v("quantity") >=
+        quantityMeets &&
+        varieties >=
           Number(
-            requirement.minimum || 0
+            requirement.varieties
           )
       )
         ? "meets"
         : "attention";
 
+    }
 
-    /* -------------------------
-       FORMULA
-       ------------------------- */
 
     case "formula":
-    case "formula-request":
+    case "formula-request": {
+
+      const quantity =
+        numberValue(
+          "quantity"
+        );
+
+
       return (
-        v("quantity") >=
+        quantity >=
         Number(
-          requirement.minimum || 0
+          requirement.minimum ||
+          0
         )
       )
         ? "meets"
         : "attention";
 
+    }
 
-    /* -------------------------
-       INFANT FRUITS /
-       INFANT VEGETABLES
-       ------------------------- */
 
     case "infant-produce": {
 
-      const varietiesOK =
-        v("varieties") >=
-        Number(
-          requirement.varieties || 0
+      const varieties =
+        numberValue(
+          "varieties"
         );
 
-      const singleOK =
-        v("single") >=
-        Number(
-          requirement.singleMinimum || 0
+      const single =
+        numberValue(
+          "single"
         );
 
-      const twoPackOK =
-        v("twoPack") >=
-        Number(
-          requirement.twoPackMinimum || 0
+      const twoPack =
+        numberValue(
+          "twoPack"
         );
+
 
       return (
-        varietiesOK &&
-        (
-          singleOK ||
-          twoPackOK
-        )
-      )
-        ? "meets"
-        : "attention";
-    }
-
-
-    /* -------------------------
-       YOGURT
-       PG 1–2
-       ------------------------- */
-
-    case "yogurt":
-      return (
-        v("varieties") >=
+        varieties >=
           Number(
-            requirement.varieties || 0
+            requirement.varieties ||
+            0
           ) &&
-
-        v("wholeFat") >=
+        single >=
           Number(
-            requirement.wholeFatMinimum || 0
+            requirement.singleMinimum ||
+            0
           ) &&
-
-        v("lowFat") >=
+        twoPack >=
           Number(
-            requirement.lowFatMinimum || 0
+            requirement.twoPackMinimum ||
+            0
           )
       )
         ? "meets"
         : "attention";
 
+    }
 
-    /* -------------------------
-       CHEESE
-       ------------------------- */
+
+    case "yogurt": {
+
+      const varieties =
+        numberValue(
+          "varieties"
+        );
+
+      const wholeFat =
+        numberValue(
+          "wholeFat"
+        );
+
+      const lowFat =
+        numberValue(
+          "lowFat"
+        );
+
+
+      return (
+        varieties >=
+          Number(
+            requirement.varieties ||
+            0
+          ) &&
+        wholeFat >=
+          Number(
+            requirement.wholeFatMinimum ||
+            0
+          ) &&
+        lowFat >=
+          Number(
+            requirement.lowFatMinimum ||
+            0
+          )
+      )
+        ? "meets"
+        : "attention";
+
+    }
+
 
     case "either-size": {
 
-      const varietiesOK =
-        v("varieties") >=
-        Number(
-          requirement.varieties || 0
+      const varieties =
+        numberValue(
+          "varieties"
         );
 
-      const firstMinimum =
+      const sizeOne =
+        numberValue(
+          "sizeOne"
+        );
+
+      const sizeTwo =
+        numberValue(
+          "sizeTwo"
+        );
+
+
+      const optionOneMinimum =
         Number(
           requirement.options?.[0]
-            ?.minimum || 0
+            ?.minimum ||
+          0
         );
 
-      const secondMinimum =
+
+      const optionTwoMinimum =
         Number(
           requirement.options?.[1]
-            ?.minimum || 0
+            ?.minimum ||
+          0
         );
 
-      /*
-        This allows equivalent mixed stock.
 
-        Example:
-        If the requirement is either
-        4 smaller packages OR
-        2 larger packages,
-
-        then:
-        2 smaller + 1 larger
-        equals one complete minimum.
-      */
-
-      const firstEquivalent =
-        firstMinimum > 0
-          ? (
-              v("sizeOne") /
-              firstMinimum
-            )
-          : 0;
-
-      const secondEquivalent =
-        secondMinimum > 0
-          ? (
-              v("sizeTwo") /
-              secondMinimum
-            )
-          : 0;
-
-      const quantityOK =
+      const equivalentQuantity =
         (
-          firstEquivalent +
-          secondEquivalent
-        ) >= 1;
+          optionOneMinimum > 0
+            ? sizeOne /
+              optionOneMinimum
+            : 0
+        ) +
+        (
+          optionTwoMinimum > 0
+            ? sizeTwo /
+              optionTwoMinimum
+            : 0
+        );
+
 
       return (
-        varietiesOK &&
-        quantityOK
+        varieties >=
+          Number(
+            requirement.varieties ||
+            0
+          ) &&
+        equivalentQuantity >= 1
       )
         ? "meets"
         : "attention";
+
     }
 
 
-    /* -------------------------
-       BREAKFAST CEREAL
-       ------------------------- */
+    case "cereal": {
 
-    case "cereal":
+      const varieties =
+        numberValue(
+          "varieties"
+        );
+
+      const quantity =
+        numberValue(
+          "quantity"
+        );
+
+      const wholeGrain =
+        numberValue(
+          "wholeGrain"
+        );
+
+
       return (
-        v("varieties") >=
+        varieties >=
           Number(
-            requirement.varieties || 0
+            requirement.varieties ||
+            0
           ) &&
-
-        v("quantity") >=
+        quantity >=
           Number(
-            requirement.minimum || 0
+            requirement.minimum ||
+            0
           ) &&
-
-        v("wholeGrain") >=
+        wholeGrain >=
           Number(
             requirement
-              .wholeGrainVarieties || 0
+              .wholeGrainVarieties ||
+            0
           )
       )
         ? "meets"
         : "attention";
 
+    }
 
-    /* -------------------------
-       DRIED / CANNED BEANS
-       ------------------------- */
 
     case "beans": {
 
-      const varietiesOK =
-        v("varieties") >=
-        Number(
-          requirement.varieties || 0
+      const varieties =
+        numberValue(
+          "varieties"
         );
+
+      const dried =
+        numberValue(
+          "dried"
+        );
+
+      const canned =
+        numberValue(
+          "canned"
+        );
+
 
       const driedMinimum =
         Number(
-          requirement.driedMinimum || 0
+          requirement.driedMinimum ||
+          0
         );
 
       const cannedMinimum =
         Number(
-          requirement.cannedMinimum || 0
+          requirement.cannedMinimum ||
+          0
         );
 
-      /*
-        Like cheese, the two stock
-        formats are treated as equivalent
-        portions of the minimum.
-      */
 
-      const driedEquivalent =
-        driedMinimum > 0
-          ? (
-              v("dried") /
-              driedMinimum
-            )
-          : 0;
-
-      const cannedEquivalent =
-        cannedMinimum > 0
-          ? (
-              v("canned") /
-              cannedMinimum
-            )
-          : 0;
-
-      const quantityOK =
+      const equivalentQuantity =
         (
-          driedEquivalent +
-          cannedEquivalent
-        ) >= 1;
+          driedMinimum > 0
+            ? dried /
+              driedMinimum
+            : 0
+        ) +
+        (
+          cannedMinimum > 0
+            ? canned /
+              cannedMinimum
+            : 0
+        );
+
 
       return (
-        varietiesOK &&
-        quantityOK
+        varieties >=
+          Number(
+            requirement.varieties ||
+            0
+          ) &&
+        equivalentQuantity >= 1
       )
         ? "meets"
         : "attention";
+
     }
 
 
-    /* -------------------------
-       WHOLE GRAINS
-       PG 1–3
-       ------------------------- */
+    case "whole-grain": {
 
-    case "whole-grain":
+      const varieties =
+        numberValue(
+          "varieties"
+        );
+
+      const quantity =
+        numberValue(
+          "quantity"
+        );
+
+      const breadVarieties =
+        numberValue(
+          "breadVarieties"
+        );
+
+
       return (
-        v("varieties") >=
+        varieties >=
           Number(
-            requirement.varieties || 0
+            requirement.varieties ||
+            0
           ) &&
-
-        v("quantity") >=
+        quantity >=
           Number(
-            requirement.minimum || 0
+            requirement.minimum ||
+            0
           ) &&
-
-        v("breadVarieties") >=
+        breadVarieties >=
           Number(
-            requirement.breadVarieties || 0
+            requirement
+              .breadVarieties ||
+            0
           )
       )
         ? "meets"
         : "attention";
 
+    }
 
-    /* -------------------------
-       MILK
-       PEER GROUPS 1–3
-       ------------------------- */
 
     case "milk-pg1":
     case "milk-pg2":
     case "milk-pg3": {
 
-      /*
-        PG1 explicitly lists five
-        required milk types.
+      const quantity =
+        numberValue(
+          "quantity"
+        );
 
-        PG2 and PG3 contain a discrepancy
-        in the requirements data between
-        the stated type count and the
-        number of types listed.
+      const milkTypes =
+        numberValue(
+          "milkTypes"
+        );
 
-        We therefore use statedTypeCount
-        for PG2/PG3 rather than silently
-        increasing their requirement.
-      */
+      const sizes =
+        numberValue(
+          "sizes"
+        );
+
 
       const typeMinimum =
         requirement.type ===
-          "milk-pg1"
-          ? requirement.milkTypes.length
+        "milk-pg1"
+          ? requirement
+              .milkTypes
+              .length
           : (
-              requirement.statedTypeCount ??
-              requirement.varieties ??
-              requirement.milkTypes.length
+              requirement
+                .statedTypeCount ??
+              requirement
+                .varieties ??
+              requirement
+                .milkTypes
+                .length
             );
 
-      const quantityOK =
-        v("quantity") >=
-        Number(
-          requirement.minimum || 0
-        );
-
-      const typesOK =
-        v("milkTypes") >=
-        Number(
-          typeMinimum || 0
-        );
-
-      const sizesOK =
-        v("sizes") >=
-        Number(
-          requirement.sizesRequired || 0
-        );
 
       return (
-        quantityOK &&
-        typesOK &&
-        sizesOK
-      )
-        ? "meets"
-        : "attention";
-    }
-
-
-    /* -------------------------
-       MILK
-       PEER GROUPS 4–6
-       ------------------------- */
-
-    case "split-milk":
-      return (
-        v("varieties") >=
+        quantity >=
           Number(
-            requirement.varieties || 0
+            requirement.minimum ||
+            0
           ) &&
-
-        v("whole") >=
+        milkTypes >=
           Number(
-            requirement.wholeMinimum || 0
+            typeMinimum ||
+            0
           ) &&
-
-        v("lowFat") >=
+        sizes >=
           Number(
-            requirement.lowFatMinimum || 0
+            requirement
+              .sizesRequired ||
+            0
           )
       )
         ? "meets"
         : "attention";
 
+    }
 
-    /* -------------------------
-       FRUITS / VEGETABLES
-       PEER GROUPS 1–4
-       ------------------------- */
+
+    case "split-milk": {
+
+      const varieties =
+        numberValue(
+          "varieties"
+        );
+
+      const whole =
+        numberValue(
+          "whole"
+        );
+
+      const lowFat =
+        numberValue(
+          "lowFat"
+        );
+
+
+      return (
+        varieties >=
+          Number(
+            requirement.varieties ||
+            0
+          ) &&
+        whole >=
+          Number(
+            requirement.wholeMinimum ||
+            0
+          ) &&
+        lowFat >=
+          Number(
+            requirement.lowFatMinimum ||
+            0
+          )
+      )
+        ? "meets"
+        : "attention";
+
+    }
+
 
     case "produce-and": {
 
-      const varietiesOK =
-        v("varieties") >=
-        Number(
-          requirement.varieties || 0
+      const varieties =
+        numberValue(
+          "varieties"
         );
 
-      const subcategoriesOK =
-        v("subcategories") >=
-        Number(
-          requirement.subcategories || 0
+      const subcategories =
+        numberValue(
+          "subcategories"
         );
 
-      const freshPoundsOK =
-        v("freshPounds") >=
-        Number(
-          requirement.freshPounds || 0
+      const freshVarieties =
+        numberValue(
+          "freshVarieties"
         );
 
-      const freshVarietiesOK =
-        requirement.freshVarieties ===
-          undefined ||
-        v("freshVarieties") >=
-          Number(
-            requirement.freshVarieties || 0
-          );
+      const freshPounds =
+        numberValue(
+          "freshPounds"
+        );
 
-      /*
-        These peer groups require the
-        fresh minimum PLUS one additional
-        canned, frozen, or dollar-value
-        minimum.
-      */
+      const canned =
+        numberValue(
+          "canned"
+        );
 
-      const additionalStockOK =
-        v("canned") >=
-          Number(
-            requirement.cannedMinimum || 0
-          ) ||
+      const frozen =
+        numberValue(
+          "frozen"
+        );
 
-        v("frozen") >=
-          Number(
-            requirement.frozenMinimum || 0
-          ) ||
+      const dollarValue =
+        numberValue(
+          "dollarValue"
+        );
 
-        v("dollarValue") >=
+
+      const varietiesMeet =
+        varieties >=
+        Number(
+          requirement.varieties ||
+          0
+        );
+
+
+      const subcategoriesMeet =
+        subcategories >=
+        Number(
+          requirement.subcategories ||
+          0
+        );
+
+
+      const freshVarietiesMeet =
+        requirement
+          .freshVarieties ===
+        undefined
+          ? true
+          : (
+              freshVarieties >=
+              Number(
+                requirement
+                  .freshVarieties ||
+                0
+              )
+            );
+
+
+      const freshMeets =
+        freshPounds >=
+        Number(
+          requirement.freshPounds ||
+          0
+        );
+
+
+      const additionalMeets =
+        (
+          canned >=
           Number(
-            requirement.dollarMinimum || 0
-          );
+            requirement
+              .cannedMinimum ||
+            0
+          )
+        ) ||
+        (
+          frozen >=
+          Number(
+            requirement
+              .frozenMinimum ||
+            0
+          )
+        ) ||
+        (
+          dollarValue >=
+          Number(
+            requirement
+              .dollarMinimum ||
+            0
+          )
+        );
+
 
       return (
-        varietiesOK &&
-        subcategoriesOK &&
-        freshVarietiesOK &&
-        freshPoundsOK &&
-        additionalStockOK
+        varietiesMeet &&
+        subcategoriesMeet &&
+        freshVarietiesMeet &&
+        freshMeets &&
+        additionalMeets
       )
         ? "meets"
         : "attention";
+
     }
 
-
-    /* -------------------------
-       FRUITS / VEGETABLES
-       PEER GROUPS 5–6
-       ------------------------- */
 
     case "produce-or": {
 
-      const varietiesOK =
-        v("varieties") >=
-        Number(
-          requirement.varieties || 0
+      const varieties =
+        numberValue(
+          "varieties"
         );
 
-      const quantityOK =
-        v("freshPounds") >=
-          Number(
-            requirement.freshPounds || 0
-          ) ||
+      const freshPounds =
+        numberValue(
+          "freshPounds"
+        );
 
-        v("canned") >=
-          Number(
-            requirement.cannedMinimum || 0
-          ) ||
+      const canned =
+        numberValue(
+          "canned"
+        );
 
-        v("frozen") >=
-          Number(
-            requirement.frozenMinimum || 0
-          ) ||
+      const frozen =
+        numberValue(
+          "frozen"
+        );
 
-        v("dollarValue") >=
+      const dollarValue =
+        numberValue(
+          "dollarValue"
+        );
+
+
+      const optionMeets =
+        (
+          freshPounds >=
           Number(
-            requirement.dollarMinimum || 0
-          );
+            requirement
+              .freshPounds ||
+            0
+          )
+        ) ||
+        (
+          canned >=
+          Number(
+            requirement
+              .cannedMinimum ||
+            0
+          )
+        ) ||
+        (
+          frozen >=
+          Number(
+            requirement
+              .frozenMinimum ||
+            0
+          )
+        ) ||
+        (
+          dollarValue >=
+          Number(
+            requirement
+              .dollarMinimum ||
+            0
+          )
+        );
+
 
       return (
-        varietiesOK &&
-        quantityOK
+        varieties >=
+          Number(
+            requirement.varieties ||
+            0
+          ) &&
+        optionMeets
       )
         ? "meets"
         : "attention";
+
     }
 
 
-    /* -------------------------
-       FALLBACK
-       ------------------------- */
+    default: {
 
-    default:
+      const quantity =
+        numberValue(
+          "quantity"
+        );
+
+
       return (
-        v("quantity") >=
+        quantity >=
         Number(
-          requirement.minimum || 0
+          requirement.minimum ||
+          0
         )
       )
         ? "meets"
         : "attention";
+
+    }
+
   }
+
 }
-
-
 /* =========================================================
    REQUIREMENT SUMMARY TEXT
    ========================================================= */
@@ -2028,6 +2646,7 @@ function pluralize(
     : `${word}s`;
 }
 
+
 function escapeHtml(value) {
 
   return String(value ?? "")
@@ -2037,6 +2656,8 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
+
+
 /* =========================================================
    RESULTS
    ========================================================= */
@@ -2057,6 +2678,7 @@ function renderResults() {
   const requirements =
     peerData.requirements;
 
+
   /*
     Make sure the category currently
     on screen is saved before building
@@ -2067,14 +2689,18 @@ function renderResults() {
     requirements[currentCategoryIndex];
 
   if (currentRequirement) {
+
     saveCurrentCategoryValues(
       currentRequirement
     );
+
   }
+
 
   let meets = 0;
   let attention = 0;
   let notChecked = 0;
+
 
   requirements.forEach(
     (requirement) => {
@@ -2084,18 +2710,26 @@ function renderResults() {
           requirement.id
         ]?.result || "not-checked";
 
+
       if (result === "meets") {
+
         meets += 1;
+
       } else if (
         result === "attention"
       ) {
+
         attention += 1;
+
       } else {
+
         notChecked += 1;
+
       }
 
     }
   );
+
 
   const completed =
     meets + attention;
@@ -2110,9 +2744,11 @@ function renderResults() {
         )
       : 0;
 
+
   trackEvent(
     "assessment_results_viewed",
     {
+
       peer_group:
         selectedPeerGroup,
 
@@ -2133,8 +2769,10 @@ function renderResults() {
 
       not_checked:
         notChecked
+
     }
   );
+
 
   document.body.innerHTML = `
     <div class="assessment-shell results-shell">
@@ -2161,6 +2799,7 @@ function renderResults() {
             </div>
 
           </button>
+
 
           <div class="assessment-peer-pill">
 
@@ -2376,6 +3015,7 @@ function renderResults() {
                     stored?.result ||
                     "not-checked";
 
+
                   let statusClass =
                     "status-not-checked";
 
@@ -2384,6 +3024,7 @@ function renderResults() {
 
                   let statusSymbol =
                     "○";
+
 
                   if (
                     result === "meets"
@@ -2414,6 +3055,7 @@ function renderResults() {
 
                   }
 
+
                   return `
                     <article
                       class="
@@ -2435,6 +3077,7 @@ function renderResults() {
                         >
                           ${index + 1}
                         </span>
+
 
                         <div
                           class="
@@ -2483,6 +3126,7 @@ function renderResults() {
 
                     </article>
                   `;
+
                 }
               )
               .join("")}
@@ -2573,7 +3217,9 @@ function renderResults() {
     resultsHomeButton.addEventListener(
       "click",
       () => {
+
         window.location.reload();
+
       }
     );
 
@@ -2586,9 +3232,11 @@ function renderResults() {
       .addEventListener(
         "click",
         () => {
+
           renderAssessment(
             selectedPeerGroup
           );
+
         }
       );
 
@@ -2609,15 +3257,21 @@ function renderResults() {
           }
         );
 
+
         selectedPeerGroup = null;
+
         currentCategoryIndex = 0;
+
         assessmentState = {};
 
+
         window.location.reload();
+
       }
     );
 
   }
+
 }
 
 
@@ -2652,11 +3306,13 @@ function trackPageView() {
   trackEvent(
     "page_view",
     {
+
       page:
         window.location.pathname,
 
       app_version:
         APP_VERSION
+
     }
   );
 
@@ -2675,6 +3331,7 @@ function trackEvent(
   if (!eventName) {
     return;
   }
+
 
   const payload = {
 
@@ -2733,8 +3390,10 @@ function trackEvent(
         mode: "no-cors",
 
         headers: {
+
           "Content-Type":
             "text/plain;charset=utf-8"
+
         },
 
         body:
@@ -2776,18 +3435,22 @@ function trackAssessmentSnapshot() {
     return;
   }
 
+
   const peerData =
     STOCK_REQUIREMENTS[
       selectedPeerGroup
     ];
 
+
   if (!peerData) {
     return;
   }
 
+
   let meets = 0;
   let attention = 0;
   let notChecked = 0;
+
 
   peerData.requirements.forEach(
     (requirement) => {
@@ -2795,7 +3458,9 @@ function trackAssessmentSnapshot() {
       const result =
         assessmentState[
           requirement.id
-        ]?.result || "not-checked";
+        ]?.result ||
+        "not-checked";
+
 
       if (result === "meets") {
 
@@ -2815,6 +3480,7 @@ function trackAssessmentSnapshot() {
 
     }
   );
+
 
   trackEvent(
     "assessment_snapshot",
@@ -2857,6 +3523,7 @@ window.addEventListener(
 
   }
 );
+
 
 /* =========================================================
    END WV WIC STOCKCHECK
