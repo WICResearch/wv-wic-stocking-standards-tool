@@ -1478,3 +1478,36 @@
 
     line-height: 1.6 !important;
 }
+/* =========================================================
+   STOCKING DETAILS
+   ========================================================= */
+
+.requirement-note-content {
+    flex: 1;
+}
+
+.requirement-note-title {
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: #4f8519;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    letter-spacing: 1px;
+
+    text-transform: uppercase;
+}
+
+.guided-category-card > .requirement-note p {
+    margin: 0 !important;
+
+    color: #243e46 !important;
+
+    font-size: 15px !important;
+    font-weight: 650 !important;
+
+    line-height: 1.6 !important;
+}
