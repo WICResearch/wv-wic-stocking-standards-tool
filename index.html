@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Check current inventory against West Virginia WIC minimum stocking requirements.">
+  <title>WV WIC StockCheck | Minimum Stocking Requirements Tool</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="nav-container">
+      <a class="brand" href="#" aria-label="WV WIC StockCheck Home">
+        <img class="brand-logo" src="wic-color.jpg" alt="WIC logo">
+        <div class="brand-name"><strong>WV WIC</strong><span>StockCheck</span></div>
+      </a>
+      <div class="standards-badge"><span class="status-dot"></span>Standards updated July 16, 2026</div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-orb orb-one"></div><div class="hero-orb orb-two"></div><div class="hero-grid-pattern"></div>
+      <div class="hero-container">
+        <div class="hero-copy">
+          <div class="eyebrow"><span class="eyebrow-icon">✓</span>West Virginia WIC Vendor Resource</div>
+          <h1>Stock smarter.<span>Stay WIC ready.</span></h1>
+          <p class="hero-description">Check your store's current inventory against West Virginia WIC minimum stocking requirements and instantly identify anything that needs attention.</p>
+          <div class="hero-benefits">
+            <div class="benefit"><span>✓</span>Peer-group specific</div>
+            <div class="benefit"><span>✓</span>Guided assessment</div>
+            <div class="benefit"><span>✓</span>Instant results</div>
+          </div>
+          <a href="#peer-groups" class="primary-button">Start StockCheck <span>→</span></a>
+        </div>
+        <div class="hero-visual">
+          <div class="stock-preview-card">
+            <img class="future-logo" src="nourishing-the-future.png" alt="Nourishing the Future">
+            <span class="preview-kicker">WV WIC STOCKCHECK</span>
+            <h2>Know where you stand before your next review.</h2>
+            <div class="preview-step"><span>1</span><div><strong>Choose your peer group</strong><small>Load the standards for your vendor type.</small></div></div>
+            <div class="preview-step"><span>2</span><div><strong>Check inventory</strong><small>Work through one food category at a time.</small></div></div>
+            <div class="preview-step"><span>3</span><div><strong>Review results</strong><small>See what meets the standard and what needs attention.</small></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="peer-section" id="peer-groups">
+      <div class="section-container">
+        <div class="section-heading"><div><span class="section-kicker">STEP 1</span><h2>Select your peer group</h2></div><p>Choose the peer group assigned to your store. StockCheck will load the minimum stocking requirements that apply to your vendor type.</p></div>
+        <div class="peer-grid">
+          <button class="peer-card" type="button" data-peer="1"><span class="peer-number">01</span><div class="peer-icon">▦</div><div class="peer-card-content"><span class="peer-label">Peer Group 1</span><h3>Mass Merchandisers</h3><p>Nationwide retailers offering groceries and a wide variety of merchandise with their own distribution centers.</p></div><div class="peer-arrow">→</div></button>
+          <button class="peer-card" type="button" data-peer="2"><span class="peer-number">02</span><div class="peer-icon">◆</div><div class="peer-card-content"><span class="peer-label">Peer Group 2</span><h3>National Grocery Chains</h3><p>Grocery-focused chains with their own distribution centers operating in ten or more states.</p></div><div class="peer-arrow">→</div></button>
+          <button class="peer-card" type="button" data-peer="3"><span class="peer-number">03</span><div class="peer-icon">⬡</div><div class="peer-card-content"><span class="peer-label">Peer Group 3</span><h3>Regional Grocery Chains</h3><p>Grocery chains operating in four to nine states and/or headquartered outside West Virginia.</p></div><div class="peer-arrow">→</div></button>
+          <button class="peer-card" type="button" data-peer="4"><span class="peer-number">04</span><div class="peer-icon">⌂</div><div class="peer-card-content"><span class="peer-label">Peer Group 4</span><h3>Local Grocery Chains</h3><p>Grocery chains operating in three or fewer states and in more than one West Virginia WIC region.</p></div><div class="peer-arrow">→</div></button>
+          <button class="peer-card" type="button" data-peer="5"><span class="peer-number">05</span><div class="peer-icon">●</div><div class="peer-card-content"><span class="peer-label">Peer Group 5</span><h3>Rural Independent Grocers</h3><p>Independent grocery stores using third-party distribution and operating within one West Virginia WIC region.</p></div><div class="peer-arrow">→</div></button>
+          <button class="peer-card" type="button" data-peer="6"><span class="peer-number">06</span><div class="peer-icon">✦</div><div class="peer-card-content"><span class="peer-label">Peer Group 6</span><h3>Isolated Independent Stores</h3><p>Independent stores with limited grocery offerings, third-party distribution, and one West Virginia WIC region.</p></div><div class="peer-arrow">→</div></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="info-section"><div class="section-container"><div class="info-card"><img src="wic-color.jpg" alt="" class="info-wic-logo"><div class="info-copy"><span class="info-label">BEFORE YOU BEGIN</span><h2>Have your current inventory ready.</h2><p>StockCheck will guide you through each required food category. You can move backward and forward without losing entries.</p></div><div class="info-detail"><div><strong>6</strong><span>Peer Groups</span></div><div><strong>✓</strong><span>Instant Check</span></div><div><strong>1</strong><span>Category at a Time</span></div></div></div></div></section>
+
+    <section class="privacy-section"><div class="section-container"><div class="privacy-notice"><span class="privacy-icon">◉</span><p><strong>Anonymous usage data:</strong> StockCheck may collect anonymous usage and assessment information to help West Virginia WIC evaluate and improve vendor resources. The tool does not request your name, email address, vendor number, store name, or precise location.</p></div></div></section>
+  </main>
+
+  <footer class="site-footer"><div class="footer-container"><div class="footer-brand"><img src="wic-color.jpg" alt="WIC" class="footer-wic"><div><strong>West Virginia WIC</strong><span>Minimum Stocking Requirements Tool</span></div></div><img src="wv-doh-logo.jpg" alt="West Virginia Department of Health" class="doh-logo"><p class="footer-disclaimer">StockCheck is intended to assist West Virginia WIC vendors in reviewing minimum stocking requirements. Refer to current West Virginia WIC vendor guidance for official program requirements.</p></div></footer>
+
+  <script src="requirements.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
