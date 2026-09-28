@@ -482,26 +482,32 @@ function buildInventoryFields(requirement) {
 
 
     case "infant-produce":
-      return `
-        <div class="inventory-grid">
+  return `
+    <div class="inventory-grid">
 
-          ${numberField(
-            requirement.id,
-            "varieties",
-            "Varieties in stock",
-            `Minimum: ${requirement.varieties}`
-          )}
+      ${numberField(
+        requirement.id,
+        "varieties",
+        "Varieties in stock",
+        `Minimum: ${requirement.varieties}`
+      )}
 
-          ${numberField(
-            requirement.id,
-            "quantity",
-            "Total containers",
-            `Minimum: ${requirement.minimum}`
-          )}
+      ${numberField(
+        requirement.id,
+        "single",
+        "Single containers in stock",
+        `Minimum: ${requirement.singleMinimum}`
+      )}
 
-        </div>
-      `;
+      ${numberField(
+        requirement.id,
+        "twoPack",
+        "2-pack containers in stock",
+        `Minimum: ${requirement.twoPackMinimum}`
+      )}
 
+    </div>
+  `;
 
     case "yogurt":
       return `
@@ -934,20 +940,35 @@ function evaluateRequirement(requirement, values) {
         : "attention";
 
 
-    case "infant-produce":
-    case "yogurt":
-    case "whole-grain":
-      return (
-        v("varieties") >=
-          Number(requirement.varieties || 0) &&
-        (
-          requirement.minimum === undefined ||
-          v("quantity") >=
-            Number(requirement.minimum || 0)
-        )
-      )
-        ? "meets"
-        : "attention";
+  case "infant-produce": {
+  const varietiesOK =
+    v("varieties") >= Number(requirement.varieties || 0);
+
+  const singleOK =
+    v("single") >= Number(requirement.singleMinimum || 0);
+
+  const twoPackOK =
+    v("twoPack") >= Number(requirement.twoPackMinimum || 0);
+
+  return varietiesOK && (singleOK || twoPackOK)
+    ? "meets"
+    : "attention";
+}
+
+
+case "yogurt":
+case "whole-grain":
+  return (
+    v("varieties") >=
+      Number(requirement.varieties || 0) &&
+    (
+      requirement.minimum === undefined ||
+      v("quantity") >=
+        Number(requirement.minimum || 0)
+    )
+  )
+    ? "meets"
+    : "attention";
 
 
     case "either-size": {
@@ -1619,11 +1640,11 @@ function getRequirementSummary(requirement) {
       return `${requirement.minimum} ${requirement.unit} across the required contract formulas.`;
 
 
-    case "infant-produce":
-      return `At least ${requirement.varieties} ${pluralize(
-        "variety",
-        requirement.varieties
-      )} and ${requirement.minimum} ${requirement.unit}.`;
+ case "infant-produce":
+  return `At least ${requirement.varieties} ${pluralize(
+    "variety",
+    requirement.varieties
+  )} and either ${requirement.singleMinimum} single containers OR ${requirement.twoPackMinimum} 2-packs.`;  
 
 
     case "yogurt":
