@@ -325,13 +325,19 @@ function renderCurrentCategory() {
       ${
         requirement.note
           ? `
-            <div class="requirement-note">
-              <span>i</span>
+         <div class="requirement-note">
+  <span class="requirement-note-icon">i</span>
 
-              <p>
-                ${requirement.note}
-              </p>
-            </div>
+  <div class="requirement-note-content">
+    <strong class="requirement-note-title">
+      STOCKING DETAILS
+    </strong>
+
+    <p>
+      ${requirement.note}
+    </p>
+  </div>
+</div>  
           `
           : ""
       }
