@@ -1770,40 +1770,40 @@ function evaluateRequirement(
     }
 
 
-    case "infant-produce": {
+       case "infant-produce": {
 
       const varieties =
-        numberValue(
-          "varieties"
-        );
+        numberValue("varieties");
 
       const single =
-        numberValue(
-          "single"
-        );
+        numberValue("single");
 
       const twoPack =
-        numberValue(
-          "twoPack"
+        numberValue("twoPack");
+
+      const varietiesMeet =
+        varieties >=
+        Number(
+          requirement.varieties || 0
         );
 
+      const containerRequirementMeets =
+        (
+          single >=
+          Number(
+            requirement.singleMinimum || 0
+          )
+        ) ||
+        (
+          twoPack >=
+          Number(
+            requirement.twoPackMinimum || 0
+          )
+        );
 
       return (
-        varieties >=
-          Number(
-            requirement.varieties ||
-            0
-          ) &&
-        single >=
-          Number(
-            requirement.singleMinimum ||
-            0
-          ) &&
-        twoPack >=
-          Number(
-            requirement.twoPackMinimum ||
-            0
-          )
+        varietiesMeet &&
+        containerRequirementMeets
       )
         ? "meets"
         : "attention";
