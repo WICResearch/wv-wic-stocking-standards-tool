@@ -4142,3 +4142,34 @@ a:focus-visible {
 /* =========================================================
    END WV WIC STOCKCHECK STYLES
    ========================================================= */
+/* =========================================================
+   PRIVACY NOTICE — TOP LANDING PAGE POSITION
+   ========================================================= */
+
+.privacy-section {
+  padding: 24px 0 0 !important;
+  margin: 0 !important;
+  background: var(--off-white);
+}
+
+.privacy-notice {
+  max-width: none;
+  margin: 0 !important;
+}
+
+.peer-section {
+  padding-top: 32px !important;
+}
+
+@media (max-width: 768px) {
+
+  .privacy-section {
+    padding: 16px 0 0 !important;
+  }
+
+  .peer-section {
+    padding-top: 24px !important;
+  }
+
+}
+
