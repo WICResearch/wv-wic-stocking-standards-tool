@@ -1591,7 +1591,14 @@ function updateAssessmentSummary() {
           100
         )
       : 0;
+  const allRequirementsMet =
+    total > 0 &&
+    meets === total &&
+    attention === 0 &&
+    notChecked === 0;
 
+  const hasNeedsAttention =
+    attention > 0;
 
   const completedCount =
     document.getElementById(
@@ -2968,6 +2975,79 @@ function renderResults() {
                     You can return to the
                     assessment to finish
                     entering your inventory.
+                  </p>
+
+                </div>
+
+              </section>
+            `
+            : ""
+        }
+
+        ${
+          allRequirementsMet
+            ? `
+              <section class="results-success-message">
+
+                <span class="results-message-icon">
+                  ✓
+                </span>
+
+                <div>
+
+                  <strong>
+                    Congratulations! All minimum stocking requirements are met.
+                  </strong>
+
+                  <p>
+                    Based on the inventory information entered,
+                    your store currently meets the minimum stocking
+                    requirements for Peer Group
+                    ${selectedPeerGroup} — ${peerData.name}.
+                    Continue maintaining the required stock levels
+                    to support WIC participants and prepare for
+                    WIC monitoring.
+                  </p>
+
+                </div>
+
+              </section>
+            `
+            : ""
+        }
+
+
+        ${
+          hasNeedsAttention
+            ? `
+              <section class="results-attention-explanation">
+
+                <span class="results-message-icon">
+                  !
+                </span>
+
+                <div>
+
+                  <strong>
+                    What does “Needs Attention” mean?
+                  </strong>
+
+                  <p>
+                    Based on the inventory information entered,
+                    one or more minimum stocking requirements are
+                    not currently met. During WIC monitoring, a
+                    store that does not meet minimum stocking
+                    requirements may be reviewed for placement in
+                    a different peer group, may be able to file an
+                    exemption waiver, or may be denied until the
+                    required stock amounts are obtained.
+                  </p>
+
+                  <p class="results-attention-followup">
+                    Review each category marked
+                    <strong>Needs Attention</strong>
+                    below and compare your current inventory with
+                    the minimum requirement shown.
                   </p>
 
                 </div>
