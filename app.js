@@ -3220,7 +3220,7 @@ function renderResults() {
         </section>
 
 
-        <section class="results-actions">
+              <section class="results-actions">
 
           <button
             type="button"
@@ -3228,6 +3228,15 @@ function renderResults() {
             id="backToAssessmentButton"
           >
             ← Back to Assessment
+          </button>
+
+
+          <button
+            type="button"
+            class="secondary-button print-results-button"
+            id="printResultsButton"
+          >
+            🖨 Print / Save PDF
           </button>
 
 
@@ -3294,8 +3303,39 @@ function renderResults() {
     document.getElementById(
       "startOverButton"
     );
+  const printResultsButton =
+    document.getElementById(
+      "printResultsButton"
+    );
+  if (printResultsButton) {
 
+    printResultsButton.addEventListener(
+      "click",
+      () => {
 
+        trackEvent(
+          "assessment_results_printed",
+          {
+            peer_group:
+              selectedPeerGroup,
+
+            meets_requirement:
+              meets,
+
+            needs_attention:
+              attention,
+
+            not_checked:
+              notChecked
+          }
+        );
+
+        window.print();
+
+      }
+    );
+
+  }
   if (resultsHomeButton) {
 
     resultsHomeButton.addEventListener(
