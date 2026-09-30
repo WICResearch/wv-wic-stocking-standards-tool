@@ -4693,3 +4693,212 @@ a:focus-visible {
   }
 
 }
+/* =========================================================
+   STOCKCHECK PRINT / SAVE PDF
+   ========================================================= */
+
+.print-results-button {
+  border-color: var(--wic-teal);
+  color: var(--wic-teal-dark);
+  background: #ffffff;
+}
+
+.print-results-button:hover {
+  background: #eef8fa;
+}
+
+
+/* =========================================================
+   PRINTED STOCKCHECK REPORT
+   ========================================================= */
+
+@media print {
+
+  @page {
+    size: letter;
+    margin: 0.55in;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+  }
+
+  body {
+    margin: 0 !important;
+    color: #172f37 !important;
+    font-size: 11pt !important;
+  }
+
+
+  /* Hide things that should not appear on the report */
+  .results-actions {
+    display: none !important;
+  }
+
+
+  /* Main report area */
+  .assessment-shell,
+  .results-shell {
+    background: #ffffff !important;
+    min-height: auto !important;
+  }
+
+  .assessment-main,
+  .results-main {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+
+  /* WV WIC report header */
+  .assessment-topbar {
+    position: static !important;
+    box-shadow: none !important;
+    border-bottom: 2px solid #00657f !important;
+    background: #ffffff !important;
+    margin-bottom: 22px !important;
+  }
+
+  .assessment-topbar-inner {
+    width: 100% !important;
+    max-width: none !important;
+    padding: 0 0 14px !important;
+  }
+
+  .assessment-brand {
+    cursor: default !important;
+  }
+
+  .assessment-peer-pill {
+    border: 1px solid #d9e6e9 !important;
+    background: #f3f8f9 !important;
+    box-shadow: none !important;
+  }
+
+
+  /* Results title */
+  .results-hero {
+    margin-bottom: 18px !important;
+  }
+
+  .results-hero h1 {
+    font-size: 24pt !important;
+    margin-bottom: 6px !important;
+  }
+
+  .results-hero p {
+    font-size: 10.5pt !important;
+    line-height: 1.5 !important;
+  }
+
+
+  /* Overall results summary */
+  .results-overview-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #d9e6e9 !important;
+    margin-bottom: 18px !important;
+  }
+
+
+  /* Congratulations message */
+  .results-success-message {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #cde3b2 !important;
+    border-left: 5px solid #006b4f !important;
+    background: #f4faec !important;
+  }
+
+
+  /* Needs Attention explanation */
+  .results-attention-explanation {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #f0d1a9 !important;
+    border-left: 5px solid #d88416 !important;
+    background: #fff7ec !important;
+  }
+
+
+  /* Incomplete assessment message */
+  .results-notice {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    box-shadow: none !important;
+  }
+
+
+  /* Category results */
+  .results-list-section {
+    margin-top: 18px !important;
+  }
+
+  .results-category-list {
+    gap: 10px !important;
+  }
+
+  .result-category-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #d9e6e9 !important;
+    margin-bottom: 9px !important;
+  }
+
+
+  /* Make statuses easy to identify */
+  .result-category-card.status-success {
+    border-left: 5px solid #006b4f !important;
+  }
+
+  .result-category-card.status-attention {
+    border-left: 5px solid #d88416 !important;
+  }
+
+  .result-category-card.status-not-checked {
+    border-left: 5px solid #60747c !important;
+  }
+
+
+  /* Keep colors when saving as PDF */
+  .results-success-message,
+  .results-attention-explanation,
+  .results-overview-card,
+  .result-category-card,
+  .assessment-peer-pill,
+  .requirement-status,
+  .summary-stat {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+
+  /* Keep disclaimer on printed report */
+  .results-disclaimer {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    margin-top: 22px !important;
+    box-shadow: none !important;
+    border: 1px solid #d9e6e9 !important;
+  }
+
+  .results-disclaimer p {
+    font-size: 9pt !important;
+    line-height: 1.45 !important;
+  }
+
+
+  /* Disable animations/transitions for printing */
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+
+}
