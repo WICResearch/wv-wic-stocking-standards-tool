@@ -1591,14 +1591,6 @@ function updateAssessmentSummary() {
           100
         )
       : 0;
-  const allRequirementsMet =
-    total > 0 &&
-    meets === total &&
-    attention === 0 &&
-    notChecked === 0;
-
-  const hasNeedsAttention =
-    attention > 0;
 
   const completedCount =
     document.getElementById(
@@ -2737,7 +2729,6 @@ function renderResults() {
     }
   );
 
-
   const completed =
     meets + attention;
 
@@ -2752,7 +2743,20 @@ function renderResults() {
       : 0;
 
 
+  const allRequirementsMet =
+    total > 0 &&
+    meets === total &&
+    attention === 0 &&
+    notChecked === 0;
+
+
+  const hasNeedsAttention =
+    attention > 0;
+
+
   trackEvent(
+
+
     "assessment_results_viewed",
     {
 
